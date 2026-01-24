@@ -37,7 +37,6 @@ import androidx.compose.ui.unit.dp
 import com.example.ipvcconecta.ui.theme.Primary
 import com.example.ipvcconecta.ui.theme.PrimaryDark
 import com.example.ipvcconecta.ui.theme.Surface
-import com.example.ipvcconecta.ui.theme.components.LoginScreen
 
 @Composable
 fun RegisterScreen(

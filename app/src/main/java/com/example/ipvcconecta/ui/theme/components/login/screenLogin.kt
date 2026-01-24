@@ -1,4 +1,4 @@
-package com.example.ipvcconecta.ui.theme.components
+package com.example.ipvcconecta.ui.theme.components.login
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
