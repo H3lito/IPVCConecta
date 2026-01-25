@@ -36,6 +36,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.example.ipvcconecta.ui.theme.Primary
 import com.example.ipvcconecta.ui.theme.PrimaryDark
 import com.example.ipvcconecta.ui.theme.Surface
@@ -43,7 +44,9 @@ import com.example.ipvcconecta.ui.theme.Surface
 @Composable
 fun LoginScreen(
     onLoginClick: () -> Unit = {},
-    onRegisterClick: () -> Unit = {}
+    onRegisterClick: () -> Unit = {},
+
+
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
