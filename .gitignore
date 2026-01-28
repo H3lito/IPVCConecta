@@ -10,6 +10,9 @@
 .DS_Store
 /build
 /captures
+
+/apikey.properties
 .externalNativeBuild
 .cxx
 local.properties
+apikey.properties

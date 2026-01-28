@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1050981164951",
+    "project_id": "ipvcconecta-f8076",
+    "storage_bucket": "ipvcconecta-f8076.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1050981164951:android:4f5ff443384a9f5eac46d2",
+        "android_client_info": {
+          "package_name": "com.example.ipvcconecta"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDxrVdxSuFzAL1Xv9X9vsxhagXwccuL9Og"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
