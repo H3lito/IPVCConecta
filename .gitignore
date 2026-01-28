@@ -11,6 +11,8 @@
 /build
 /captures
 
+/app/google-services.json
+
 /apikey.properties
 .externalNativeBuild
 .cxx
