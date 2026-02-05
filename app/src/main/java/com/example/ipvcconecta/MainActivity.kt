@@ -60,7 +60,7 @@ fun Scaffolding() {
 
     LaunchedEffect(authState){
         if(authState is AuthState.Authenticated){
-            navController.navigate(MapRoute){
+            navController.navigate(MapRoute()){
                 popUpTo("LoginRoute"){ inclusive = true}
                 popUpTo("RegisterRoute"){inclusive = true}
             }

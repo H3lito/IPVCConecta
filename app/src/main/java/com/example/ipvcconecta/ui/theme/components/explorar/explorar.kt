@@ -16,6 +16,7 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.MenuBook
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.Restaurant
+import androidx.compose.material.icons.filled.RoomService
 import androidx.compose.material.icons.filled.School
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
@@ -48,8 +49,8 @@ fun ExplorarScreen(
     val categorias by viewModel.categorias.collectAsState()
     Box(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
-            MapHeader()
-            SearchBar()
+            com.example.ipvcconecta.ui.theme.components.explorar.MapHeader()
+
             ExplorarContent(
                 categorias = categorias,
                 onCategoryClick = onCategoryClick
@@ -75,42 +76,8 @@ fun MapHeader() {
         )
     }
 }
-@Composable
-fun SearchBar(
-    modifier: Modifier = Modifier
-) {
-    var query by remember { mutableStateOf("") }
 
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .background(Color.White)
-            .padding(horizontal = 16.dp, vertical = 12.dp)
-    ) {
-        OutlinedTextField(
-            value = query,
-            onValueChange = { query = it },
-            placeholder = {
-                Text(
-                    text = "Pesquisar locais...",
-                    color = Color.Gray
-                )
-            },
-            leadingIcon = {
-                Icon(
-                    imageVector = Icons.Default.Search,
-                    contentDescription = "Pesquisar",
-                    tint = Color.Gray
-                )
-            },
-            singleLine = true,
-            shape = RoundedCornerShape(12.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(52.dp)
-        )
-    }
-}
+
 
 @Composable
 fun ExplorarContent(
@@ -140,9 +107,10 @@ fun ExplorarContent(
 @Composable
 fun categoriaToIcon(categoria: String): ImageVector {
     return when (categoria) {
+        "Escolas" -> Icons.Default.School
         "Transportes" -> Icons.Default.DirectionsBus
         "Alimentação" -> Icons.Default.Restaurant
-        "Serviços Académicos" -> Icons.Default.School
+        "Serviços" -> Icons.Default.RoomService
         "Bibliotecas e Estudo" -> Icons.Default.MenuBook
         "Saúde" -> Icons.Default.Favorite
         else -> Icons.Default.Place

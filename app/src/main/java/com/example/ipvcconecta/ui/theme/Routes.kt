@@ -8,7 +8,10 @@ object LoginRoute
 object RegisterRouter
 
 @Serializable
-object MapRoute
+data class MapRoute(
+    val lat: Double? = null,
+    val lng: Double? = null
+)
 
 @Serializable
 object ExplorarRoute

@@ -4,10 +4,15 @@ import AuthViewModel
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.toRoute
+import com.example.ipvcconecta.ui.theme.AdicionarLocalRoute
 import com.example.ipvcconecta.ui.theme.DetalheLocalRoute
 import com.example.ipvcconecta.ui.theme.ExplorarRoute
 import com.example.ipvcconecta.ui.theme.FavoritoRoute
@@ -19,6 +24,7 @@ import com.example.ipvcconecta.ui.theme.RegisterRouter
 import com.example.ipvcconecta.ui.theme.components.createAcc.RegisterScreen
 import com.example.ipvcconecta.ui.theme.components.explorar.ExplorarScreen
 import com.example.ipvcconecta.ui.theme.components.favoritos.FavoritosScreen
+import com.example.ipvcconecta.ui.theme.components.favoritos.FavoritosViewModel
 import com.example.ipvcconecta.ui.theme.components.locais.DetalheLocalScreen
 import com.example.ipvcconecta.ui.theme.components.locais.ListaLocaisScreen
 import com.example.ipvcconecta.ui.theme.components.locais.LocalDetalhe
@@ -33,6 +39,10 @@ fun NavHostContainer(
     padding: PaddingValues,
     authViewModel: AuthViewModel
 ) {
+    val favoritosViewModel: FavoritosViewModel = viewModel()
+
+    // Ler a lista de favoritos
+    val listaFavoritos by favoritosViewModel.favoritos.collectAsState()
 
     NavHost(
         navController = navController,
@@ -74,11 +84,15 @@ fun NavHostContainer(
             }
 
             // ---------- MAIN ----------
-            composable<MapRoute> {
+            composable<MapRoute> { backStackEntry ->
+                // Extrair os argumentos da rota (Type-Safe)
+                val args = backStackEntry.toRoute<MapRoute>()
+
                 MapScreen(
+                    focusLat = args.lat,
+                    focusLng = args.lng,
                     onNavigateToAddLocation = {
-                        // Supondo que tens uma rota para adicionar local:
-                        navController.navigate("AdicionarLocalRoute") // Ou o teu Objeto @Serializable correspondente
+                        navController.navigate(AdicionarLocalRoute)
                     }
                 )
             }
@@ -103,43 +117,70 @@ fun NavHostContainer(
             }
 
             composable<DetalheLocalRoute> { backStackEntry ->
-                val nome =
-                    backStackEntry.arguments?.getString("nome") ?: ""
+                val nome = backStackEntry.arguments?.getString("nome") ?: ""
 
-                // MOCK DO LOCAL (mais tarde vem do ViewModel)
-                val localMock = LocalDetalhe(
-                    nome = nome,
-                    categoria = "Alimentação",
-                    descricao = "Descrição do local selecionado.",
-                    morada = "Av. do Atlântico, Viana do Castelo",
-                    horario = "Seg–Sex: 12h–14h"
+                val localReal = com.example.ipvcconecta.ui.theme.components.locais.LocaisData
+                    .carregarLocaisIniciais()
+                    .find { it.nome == nome }
 
-                )
+                if (localReal != null) {
+                    // Verificar se este local específico está na lista de favoritos
+                    val isFav = listaFavoritos.any { it.nome == localReal.nome }
 
-                DetalheLocalScreen(
-                    local = localMock,
-                    onBackClick = { navController.popBackStack() }
-                )
+                    DetalheLocalScreen(
+                        local = localReal,
+                        isFavorito = isFav, // <--- Passamos o estado
+                        onBackClick = { navController.popBackStack() },
+
+                        // Lógica do botão FAVORITO
+                        onFavoritoClick = {
+                            favoritosViewModel.toggleFavorito(localReal)
+                        },
+
+                        // Lógica do botão MAPA (como falámos antes)
+                        onVerMapaClick = {
+                            navController.navigate(
+                                MapRoute(lat = localReal.latitude, lng = localReal.longitude)
+                            ) { launchSingleTop = true }
+                        }
+                    )
+                }
             }
             composable<FavoritoRoute> {
                 FavoritosScreen(
+                    viewModel = favoritosViewModel, // Passar o mesmo ViewModel
                     onLocalClick = { local ->
-                        navController.navigate(
-                            DetalheLocalRoute(local.nome)
-                        )
+                        navController.navigate(DetalheLocalRoute(local.nome))
                     }
                 )
             }
 
 
+            // ---------- PERFIL ----------
             composable<PerfilRoute> {
                 PerfilScreen(
+                    // 1. Ação do Botão Favoritos
+                    onFavoritosClick = {
+                        // Navega para o separador dos Favoritos
+                        navController.navigate(FavoritoRoute) {
+                            launchSingleTop = true
+                        }
+                    },
 
+                    // 2. Ação do Botão Sair
+                    onLogoutClick = {
+                        // Navega para o Login
+                        navController.navigate(LoginRoute) {
+                            // Limpa tudo o que estava para trás (Mapa, Perfil, etc.)
+                            // para o utilizador não conseguir voltar atrás
+                            popUpTo(0) { inclusive = true }
+                        }
+                    }
                 )
             }
-        }
-    )
-    }
+            }
+    )}
+
 
 
 
