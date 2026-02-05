@@ -87,10 +87,11 @@ fun PerfilScreen(
 
         PerfilOption(
             text = "Sair",
-            icon = Icons.Default.ExitToApp,
-            onClick ={
-                viewModel.logout()
-                onLogoutClick},
+            icon = Icons.AutoMirrored.Filled.ExitToApp, // Usei a versão mais recente do ícone
+            onClick = {
+                viewModel.logout() // 1. Faz logout no Firebase
+                onLogoutClick()    // 2. Navega para o Login (Adiciona os parênteses aqui!)
+            },
             isDanger = true
         )
     }

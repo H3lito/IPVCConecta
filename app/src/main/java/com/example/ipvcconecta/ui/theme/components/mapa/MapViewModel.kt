@@ -1,11 +1,10 @@
 package com.example.ipvcconecta.ui.theme.components.mapa
-import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
 import android.location.Geocoder
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.ipvcconecta.ui.theme.components.locais.LocaisData
 import com.example.ipvcconecta.ui.theme.components.locais.LocalDetalhe
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
@@ -18,7 +17,7 @@ import java.util.Locale
 
 class MapViewModel(application: Application) : AndroidViewModel(application) {
 
-    // --- 1. ESTADOS DO MAPA (GPS e Pesquisa) ---
+    // --- 1. ESTADOS DO MAPA ---
     private val _cameraLocation = MutableStateFlow<LatLng?>(null)
     val cameraLocation: StateFlow<LatLng?> = _cameraLocation
 
@@ -28,17 +27,29 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     private val _searchResultTitle = MutableStateFlow<String>("")
     val searchResultTitle: StateFlow<String> = _searchResultTitle
 
-    // --- 2. ESTADOS DOS DADOS (Lista de Locais) ---
-    // Era isto que te faltava para o erro desaparecer!
+    // --- 2. DADOS (Lista de Locais em Memória) ---
     private val _locais = MutableStateFlow<List<LocalDetalhe>>(emptyList())
     val locais: StateFlow<List<LocalDetalhe>> = _locais
-
-    // Cliente de Localização (GPS)
+    // Cliente de Localização
     private val fusedLocationClient = LocationServices.getFusedLocationProviderClient(application)
 
-    // --- FUNÇÕES DO MAPA ---
 
-    @SuppressLint("MissingPermission")
+    init {
+        // Agora carregamos a partir do ficheiro externo organizado
+        _locais.value = LocaisData.carregarLocaisIniciais()
+    }
+
+
+
+    // Adicionar local à lista em memória (Simulação do FAB)
+    fun adicionarLocal(local: LocalDetalhe) {
+        val listaAtual = _locais.value.toMutableList()
+        listaAtual.add(local)
+        _locais.value = listaAtual
+    }
+
+    // --- RESTANTE CÓDIGO (Location e Search) MANTÉM-SE IGUAL ---
+    @android.annotation.SuppressLint("MissingPermission")
     fun getDeviceLocation() {
         try {
             val locationResult = fusedLocationClient.getCurrentLocation(
@@ -57,32 +68,28 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun searchLocation(query: String, context: Context) {
+    fun searchLocation(query: String) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val geocoder = Geocoder(context, Locale.getDefault())
-                @Suppress("DEPRECATION")
-                val results = geocoder.getFromLocationName(query, 1)
 
-                if (!results.isNullOrEmpty()) {
-                    val location = results[0]
-                    val searchLatLng = LatLng(location.latitude, location.longitude)
+                val localEncontrado = _locais.value.find { local ->
+                    local.nome.contains(query, ignoreCase = true) ||
+                            local.categoria.contains(query, ignoreCase = true)
+                }
 
-                    _cameraLocation.value = searchLatLng
-                    _searchResultLocation.value = searchLatLng
-                    _searchResultTitle.value = query
+                if (localEncontrado != null) {
+                    val newLatLng = com.google.android.gms.maps.model.LatLng(
+                        localEncontrado.latitude,
+                        localEncontrado.longitude
+                    )
+
+                    _cameraLocation.value = newLatLng
+                    _searchResultLocation.value = newLatLng
+                    _searchResultTitle.value = localEncontrado.nome
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
-    }
-
-    // --- FUNÇÕES DOS DADOS (Adicionar Local) ---
-
-    // Esta é a função que o teu ecrã de "Adicionar" está à procura!
-    fun adicionarLocal(local: LocalDetalhe) {
-        // Adiciona o novo local à lista atual
-        _locais.value = _locais.value + local
     }
 }

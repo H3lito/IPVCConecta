@@ -21,7 +21,7 @@ data class BottomNavItem(
 
 fun getBottomNavItems(): List<BottomNavItem> {
     return listOf(
-        BottomNavItem("Mapa", MapRoute, Icons.Filled.Map),
+        BottomNavItem("Mapa", MapRoute(), Icons.Filled.Map),
         BottomNavItem("Explorar", ExplorarRoute, Icons.Filled.Explore),
         BottomNavItem("Favoritos", FavoritoRoute, Icons.Filled.Favorite),
         BottomNavItem("Perfil", PerfilRoute, Icons.Filled.PersonPin))

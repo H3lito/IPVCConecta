@@ -1,6 +1,7 @@
 package com.example.ipvcconecta.ui.theme.components.mapa
 import android.Manifest
 import android.content.pm.PackageManager
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -41,8 +42,13 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.ipvcconecta.ui.theme.Primary
 import com.example.ipvcconecta.ui.theme.PrimaryDark
+
+import com.example.ipvcconecta.ui.theme.components.locais.LocalDetalhe
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
@@ -53,10 +59,18 @@ import com.google.maps.android.compose.rememberCameraPositionState
 
 @Composable
 fun MapScreen(
-    mapViewModel: MapViewModel = viewModel(),
-    onNavigateToAddLocation: () -> Unit
+    focusLat: Double? = null,
+    focusLng: Double? = null,
+    viewModel: MapViewModel = viewModel(),
+    onNavigateToAddLocation: () -> Unit = {}
 ) {
     val context = LocalContext.current
+    val locais by viewModel.locais.collectAsState()
+
+    // Estados do mapa
+    val cameraLocation by viewModel.cameraLocation.collectAsState()
+    val searchResultLocation by viewModel.searchResultLocation.collectAsState()
+    val searchResultTitle by viewModel.searchResultTitle.collectAsState()
 
     // Permissões
     val hasLocationPermission = ContextCompat.checkSelfPermission(
@@ -66,152 +80,117 @@ fun MapScreen(
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted ->
-        if (isGranted) {
-            mapViewModel.getDeviceLocation()
-        }
+        if (isGranted) viewModel.getDeviceLocation()
     }
 
     LaunchedEffect(Unit) {
         if (!hasLocationPermission) {
             permissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
         } else {
-            mapViewModel.getDeviceLocation()
+            viewModel.getDeviceLocation()
         }
     }
 
-    // Observar estados do ViewModel
-    val cameraLocation by mapViewModel.cameraLocation.collectAsState()
-    val searchResultLocation by mapViewModel.searchResultLocation.collectAsState()
-    val searchResultTitle by mapViewModel.searchResultTitle.collectAsState()
+    val defaultLocation = LatLng(41.6932, -8.8329)
+    val cameraPositionState = rememberCameraPositionState {
+        position = CameraPosition.fromLatLngZoom(defaultLocation, 13f)
+    }
+
+    // Atualiza câmara
+    LaunchedEffect(cameraLocation) {
+        // CORREÇÃO: Só move para a tua localização SE NÃO houver um foco definido
+        if (focusLat == null && focusLng == null) {
+            cameraLocation?.let {
+                cameraPositionState.position = CameraPosition.fromLatLngZoom(it, 16f)
+            }
+        }
+    }
+
+    LaunchedEffect(focusLat, focusLng) {
+        if (focusLat != null && focusLng != null) {
+            val posicaoFoco = LatLng(focusLat, focusLng)
+            cameraPositionState.animate(
+                update = CameraUpdateFactory.newLatLngZoom(posicaoFoco, 18f), // Zoom 18 para ver bem perto
+                durationMs = 1500
+            )
+        }
+    }
+
+    // --- CORREÇÃO DO ESTILO ---
+    // Usamos 'remember' para não recriar o objeto a cada frame
+    // O JSON remove: POI (Pontos de Interesse), Transit (Paragens) e Road Icons (Símbolos de estrada)
+    val mapStyleOptions = remember {
+        MapStyleOptions(
+            "[" +
+                    "{ \"featureType\": \"poi\", \"stylers\": [ { \"visibility\": \"off\" } ] }," +
+                    "{ \"featureType\": \"transit\", \"stylers\": [ { \"visibility\": \"off\" } ] }," +
+                    "{ \"featureType\": \"road\", \"elementType\": \"labels.icon\", \"stylers\": [ { \"visibility\": \"off\" } ] }" +
+                    "]"
+        )
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
-
-        // Mapa e Marcadores
-        MapContent(
-            hasLocationPermission = hasLocationPermission,
-            cameraLocation = cameraLocation,
-            searchResultLocation = searchResultLocation, // Passar o local pesquisado
-            searchResultTitle = searchResultTitle
-        )
-
-        // Elementos da UI sobrepostos
         Column(modifier = Modifier.fillMaxSize()) {
             MapHeader()
 
             SearchBar(
                 onSearch = { query ->
-                    mapViewModel.searchLocation(query, context)
+                    viewModel.searchLocation(query)
                 }
             )
-        }
 
-        // --- BOTÃO RECENTRAR (Canto Superior Direito) ---
-        // Colocamos padding(top = 130.dp) para ficar abaixo da barra de pesquisa
-        if (hasLocationPermission) {
-            SmallFloatingActionButton(
-                onClick = { mapViewModel.getDeviceLocation() },
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(top = 130.dp, end = 16.dp),
-                containerColor = Color.White,
-                contentColor = PrimaryDark
-            ) {
-                Icon(
-                    imageVector = Icons.Default.MyLocation,
-                    contentDescription = "Minha Localização"
+            GoogleMap(
+                modifier = Modifier.weight(1f),
+                cameraPositionState = cameraPositionState,
+                properties = MapProperties(
+                    isMyLocationEnabled = hasLocationPermission, // Mantém a tua posição (ponto azul)
+                    mapStyleOptions = mapStyleOptions            // <--- O ESTILO APLICA-SE AQUI
+                ),
+                uiSettings = MapUiSettings(
+                    zoomControlsEnabled = false,
+                    mapToolbarEnabled = false
                 )
+            ) {
+                // Os teus marcadores do IPVC
+                locais.forEach { local ->
+                    Marker(
+                        state = MarkerState(position = LatLng(local.latitude, local.longitude)),
+                        title = local.nome,
+                        snippet = local.categoria,
+                        icon = com.google.android.gms.maps.model.BitmapDescriptorFactory.defaultMarker(
+                            com.example.ipvcconecta.ui.theme.components.mapa.MapUtils.getMarkerIcon(local.categoria)
+                        )
+                    )
+                }
+
+                // Marcador de pesquisa
+                searchResultLocation?.let { loc ->
+                    Marker(
+                        state = MarkerState(position = loc),
+                        title = searchResultTitle,
+                        icon = com.google.android.gms.maps.model.BitmapDescriptorFactory.defaultMarker(
+                            com.google.android.gms.maps.model.BitmapDescriptorFactory.HUE_AZURE
+                        )
+                    )
+                }
             }
         }
 
-        // Botão Adicionar (Canto Inferior Direito)
         AddLocationFAB(
             modifier = Modifier.align(Alignment.BottomEnd),
-            onClick = { onNavigateToAddLocation() }
+            onClick = {
+                // Simulação de adicionar
+                val centroMapa = cameraPositionState.position.target
+                val novoLocal = LocalDetalhe("Novo Ponto", "Utilizador", "Criado pelo FAB", "Localizado no mapa", "Sempre aberto", centroMapa.latitude, centroMapa.longitude)
+                viewModel.adicionarLocal(novoLocal)
+                Toast.makeText(context, "Ponto adicionado!", Toast.LENGTH_SHORT).show()
+            }
         )
     }
 }
 
-@Composable
-fun SearchBar(
-    modifier: Modifier = Modifier,
-    onSearch: (String) -> Unit
-) {
-    var query by remember { mutableStateOf("") }
-    val keyboardController = LocalSoftwareKeyboardController.current
+// --- Componentes Auxiliares (Header, SearchBar, FAB) ---
 
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .background(Color.White)
-            .padding(horizontal = 16.dp, vertical = 12.dp)
-    ) {
-        OutlinedTextField(
-            value = query,
-            onValueChange = { query = it },
-            placeholder = { Text("Pesquisar locais...", color = Color.Gray) },
-            leadingIcon = {
-                Icon(Icons.Default.Search, contentDescription = "Pesquisar", tint = Color.Gray)
-            },
-            singleLine = true,
-            shape = RoundedCornerShape(12.dp),
-            modifier = Modifier.fillMaxWidth().height(52.dp),
-            // Configuração do Teclado para Pesquisa
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-            keyboardActions = KeyboardActions(
-                onSearch = {
-                    onSearch(query)
-                    keyboardController?.hide()
-                }
-            )
-        )
-    }
-}
-
-@Composable
-fun MapContent(
-    hasLocationPermission: Boolean,
-    cameraLocation: LatLng?,
-    searchResultLocation: LatLng?, // Coordenada da pesquisa
-    searchResultTitle: String
-) {
-    val defaultLocation = LatLng(41.6932, -8.8329)
-
-    val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(defaultLocation, 13f)
-    }
-
-    // Move a câmara quando o ViewModel pede
-    LaunchedEffect(cameraLocation) {
-        cameraLocation?.let {
-            cameraPositionState.position = CameraPosition.fromLatLngZoom(it, 16f)
-        }
-    }
-
-    GoogleMap(
-        modifier = Modifier.fillMaxSize(),
-        cameraPositionState = cameraPositionState,
-        properties = MapProperties(
-            // ISTO CRIA A BOLA AZUL DA LOCALIZAÇÃO ATUAL
-            isMyLocationEnabled = hasLocationPermission
-        ),
-        uiSettings = MapUiSettings(
-            zoomControlsEnabled = false,
-            myLocationButtonEnabled = false, // Desligamos o nativo para usar o nosso botão
-            mapToolbarEnabled = false
-        )
-    ) {
-        // --- DESENHAR MARCADOR DA PESQUISA ---
-        searchResultLocation?.let { location ->
-            Marker(
-                state = MarkerState(position = location),
-                title = searchResultTitle,
-                snippet = "Resultado da pesquisa"
-            )
-        }
-    }
-}
-
-// ... Header e FAB mantêm-se iguais, apenas garante que o FAB está a ser chamado no MapScreen ...
 @Composable
 fun MapHeader() {
     Box(
@@ -230,15 +209,39 @@ fun MapHeader() {
 }
 
 @Composable
-fun AddLocationFAB(
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit
-) {
+fun SearchBar(modifier: Modifier = Modifier, onSearch: (String) -> Unit) {
+    var query by remember { mutableStateOf("") }
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .background(Color.White)
+            .padding(horizontal = 16.dp, vertical = 12.dp)
+    ) {
+        OutlinedTextField(
+            value = query,
+            onValueChange = { query = it },
+            placeholder = { Text("Pesquisar...", color = Color.Gray) },
+            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = Color.Gray) },
+            singleLine = true,
+            shape = RoundedCornerShape(12.dp),
+            modifier = Modifier.fillMaxWidth(),
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+            keyboardActions = KeyboardActions(onSearch = {
+                onSearch(query)
+                keyboardController?.hide()
+            })
+        )
+    }
+}
+
+@Composable
+fun AddLocationFAB(modifier: Modifier = Modifier, onClick: () -> Unit) {
     FloatingActionButton(
         onClick = onClick,
         modifier = modifier.padding(16.dp),
         containerColor = Primary
     ) {
         Icon(Icons.Default.Add, contentDescription = "Adicionar local", tint = Color.White)
-    }
-}
+    }}

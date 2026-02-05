@@ -21,30 +21,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.ipvcconecta.ui.theme.components.locais.LocalDetalhe
 import com.example.ipvcconecta.ui.theme.components.mapa.MapScreen
 import com.example.ipvcconecta.ui.theme.data.model.LocalFavorito
 
 @Composable
 fun FavoritosScreen(
-    //onLocalClick: (LocalFavorito) -> Unit = {}
     viewModel: FavoritosViewModel = viewModel(),
-    onLocalClick: (LocalFavorito) -> Unit = {}
+    onLocalClick: (LocalDetalhe) -> Unit = {} // Recebe LocalDetalhe
 ) {
     val favoritos by viewModel.favoritos.collectAsState()
-    if(favoritos.isEmpty()) {
-    FavoritosEmptyState()
-    } else{
-        FavoritosList(
-            favoritos = favoritos,
-            onLocalClick = onLocalClick
-        )
-    }
-    // 🔹 Por agora: lista vazia (simula utilizador novo)
-    //val favoritos = remember {
-        //emptyList<LocalFavorito>()
-        // quando quiseres testar com dados:
-        // listOf(LocalFavorito("Cantina IPVC", "Alimentação"))
-    //}
 
     Column(
         modifier = Modifier
@@ -56,6 +42,7 @@ fun FavoritosScreen(
         if (favoritos.isEmpty()) {
             FavoritosEmptyState()
         } else {
+            // Agora os tipos batem certo (List<LocalDetalhe>)
             FavoritosList(
                 favoritos = favoritos,
                 onLocalClick = onLocalClick
@@ -63,6 +50,7 @@ fun FavoritosScreen(
         }
     }
 }
+
 @Composable
 fun FavoritosHeader() {
     Box(
@@ -91,10 +79,11 @@ fun FavoritosEmptyState() {
         )
     }
 }
+
 @Composable
 fun FavoritosList(
-    favoritos: List<LocalFavorito>,
-    onLocalClick: (LocalFavorito) -> Unit
+    favoritos: List<LocalDetalhe>, // <--- MUDADO DE LocalFavorito PARA LocalDetalhe
+    onLocalClick: (LocalDetalhe) -> Unit // <--- MUDADO AQUI TAMBÉM
 ) {
     LazyColumn(
         modifier = Modifier
@@ -102,14 +91,13 @@ fun FavoritosList(
             .padding(horizontal = 16.dp)
     ) {
         items(favoritos) { local ->
-            FavoritoCard(local) {
+            // O FavoritoCard também já deve estar à espera de LocalDetalhe
+            FavoritoCard(local = local) {
                 onLocalClick(local)
             }
         }
     }
 }
-
-
 
 @Preview(showBackground = true)
 @Composable
@@ -118,4 +106,3 @@ fun FavScreenPreview() {
         FavoritosScreen()
     }
 }
-

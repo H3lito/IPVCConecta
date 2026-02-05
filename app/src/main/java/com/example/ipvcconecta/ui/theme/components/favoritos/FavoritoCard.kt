@@ -21,11 +21,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.example.ipvcconecta.ui.theme.components.locais.LocalDetalhe
 import com.example.ipvcconecta.ui.theme.data.model.LocalFavorito
 
 @Composable
 fun FavoritoCard(
-    local: LocalFavorito,
+    local: LocalDetalhe, // <--- MUDAR AQUI O TIPO
     onClick: () -> Unit
 ) {
     Card(
@@ -37,13 +38,10 @@ fun FavoritoCard(
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Row(
-            modifier = Modifier
-                .padding(16.dp),
+            modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = local.nome,
                     style = MaterialTheme.typography.titleMedium
@@ -55,7 +53,6 @@ fun FavoritoCard(
                     color = Color.Gray
                 )
             }
-
             Icon(
                 imageVector = Icons.Default.Favorite,
                 contentDescription = "Favorito",

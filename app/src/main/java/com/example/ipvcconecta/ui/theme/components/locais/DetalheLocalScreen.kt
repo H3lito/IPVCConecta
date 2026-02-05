@@ -14,9 +14,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -38,11 +40,13 @@ data class LocalDetalhe(
     val descricao: String,
     val morada: String,
     val horario: String,
-
+    val latitude: Double,
+    val longitude: Double
 )
 @Composable
 fun DetalheLocalScreen(
     local: LocalDetalhe,
+    isFavorito: Boolean = false, // <--- NOVO PARÂMETRO
     onBackClick: () -> Unit = {},
     onFavoritoClick: () -> Unit = {},
     onVerMapaClick: () -> Unit = {}
@@ -52,7 +56,7 @@ fun DetalheLocalScreen(
             .fillMaxSize()
             .background(Color.White)
     ) {
-        DetalheHeader(onBackClick)
+
 
         Column(
             modifier = Modifier
@@ -89,6 +93,7 @@ fun DetalheLocalScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             AcoesLocal(
+                isFavorito = isFavorito, // Passar para baixo
                 onFavoritoClick = onFavoritoClick,
                 onVerMapaClick = onVerMapaClick
             )
@@ -97,7 +102,10 @@ fun DetalheLocalScreen(
 }
 @Composable
 fun DetalheHeader(
-    onBackClick: () -> Unit
+    local: LocalDetalhe,
+    onBackClick: () -> Unit = {},
+    onFavoritoClick: () -> Unit = {},
+    onVerMapaClick: () -> Unit = {}
 ) {
     Row(
         modifier = Modifier
@@ -154,8 +162,10 @@ fun InfoItem(
         )
     }
 }
+// Atualizar também a função AcoesLocal para receber o booleano e trocar o ícone
 @Composable
 fun AcoesLocal(
+    isFavorito: Boolean,
     onFavoritoClick: () -> Unit,
     onVerMapaClick: () -> Unit
 ) {
@@ -165,11 +175,19 @@ fun AcoesLocal(
     ) {
         Button(
             onClick = onFavoritoClick,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
+            // Opcional: Mudar cor se for favorito
+            colors = ButtonDefaults.buttonColors(
+                containerColor = if (isFavorito) Color(0xFFE91E63) else MaterialTheme.colorScheme.primary
+            )
         ) {
-            Icon(Icons.Default.FavoriteBorder, contentDescription = null)
+            // TROCAR O ÍCONE AQUI
+            Icon(
+                imageVector = if (isFavorito) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                contentDescription = null
+            )
             Spacer(modifier = Modifier.width(8.dp))
-            Text("Favorito")
+            Text(if (isFavorito) "Remover" else "Favorito")
         }
 
         OutlinedButton(
@@ -192,7 +210,9 @@ fun DetalheLocalPreview() {
                 categoria = "Alimentação",
                 descricao = "Espaço de refeições acessível para estudantes.",
                 morada = "Av. do Atlântico, Viana do Castelo",
-                horario = "Seg–Sex: 12h–14h"
+                horario = "Seg–Sex: 12h–14h",
+                latitude = 41.6932,
+                longitude =-8.8329
             )
         )
     }
