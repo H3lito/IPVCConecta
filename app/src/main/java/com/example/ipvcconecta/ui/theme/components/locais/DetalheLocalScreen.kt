@@ -35,6 +35,7 @@ import com.example.ipvcconecta.ui.theme.PrimaryDark
 import com.example.ipvcconecta.ui.theme.Surface
 
 data class LocalDetalhe(
+    val id: String = "",
     val nome: String,
     val categoria: String,
     val descricao: String,
@@ -46,8 +47,8 @@ data class LocalDetalhe(
 @Composable
 fun DetalheLocalScreen(
     local: LocalDetalhe,
-    isFavorito: Boolean = false, // <--- NOVO PARÂMETRO
-    onBackClick: () -> Unit = {},
+    isFavorito: Boolean = false,
+    onBackClick: () -> Unit = {}, // <--- Parâmetro para voltar
     onFavoritoClick: () -> Unit = {},
     onVerMapaClick: () -> Unit = {}
 ) {
@@ -56,7 +57,11 @@ fun DetalheLocalScreen(
             .fillMaxSize()
             .background(Color.White)
     ) {
-
+        // --- ADICIONAR ESTA CHAMADA AQUI ---
+        DetalheHeader(
+            onBackClick = onBackClick
+        )
+        // -----------------------------------
 
         Column(
             modifier = Modifier
@@ -93,19 +98,18 @@ fun DetalheLocalScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             AcoesLocal(
-                isFavorito = isFavorito, // Passar para baixo
+                isFavorito = isFavorito,
                 onFavoritoClick = onFavoritoClick,
                 onVerMapaClick = onVerMapaClick
             )
         }
     }
 }
+
+// Simplifiquei o Header para receber apenas o que precisa
 @Composable
 fun DetalheHeader(
-    local: LocalDetalhe,
-    onBackClick: () -> Unit = {},
-    onFavoritoClick: () -> Unit = {},
-    onVerMapaClick: () -> Unit = {}
+    onBackClick: () -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -117,8 +121,9 @@ fun DetalheHeader(
     ) {
         IconButton(onClick = onBackClick) {
             Icon(
-                imageVector = Icons.Default.ArrowBack,
-                contentDescription = "Voltar"
+                imageVector = Icons.Default.ArrowBack, // Ou Icons.AutoMirrored.Filled.ArrowBack
+                contentDescription = "Voltar",
+                tint = PrimaryDark
             )
         }
 
@@ -131,7 +136,6 @@ fun DetalheHeader(
         )
     }
 }
-
 @Composable
 fun CategoriaChip(categoria: String) {
     Surface(

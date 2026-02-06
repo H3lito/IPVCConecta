@@ -4,20 +4,26 @@ import android.content.Context
 import android.location.Geocoder
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.ipvcconecta.ui.theme.components.locais.LocaisData
+import com.example.ipvcconecta.ui.theme.components.Datas.repository.LocaisRepository
 import com.example.ipvcconecta.ui.theme.components.locais.LocalDetalhe
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.util.Locale
+import kotlin.collections.emptyList
 
 class MapViewModel(application: Application) : AndroidViewModel(application) {
 
-    // --- 1. ESTADOS DO MAPA ---
+    // 1. Ligar ao Repositório
+    private val repository = LocaisRepository(application)
+
+    // --- ESTADOS DO MAPA ---
     private val _cameraLocation = MutableStateFlow<LatLng?>(null)
     val cameraLocation: StateFlow<LatLng?> = _cameraLocation
 
@@ -27,28 +33,31 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     private val _searchResultTitle = MutableStateFlow<String>("")
     val searchResultTitle: StateFlow<String> = _searchResultTitle
 
-    // --- 2. DADOS (Lista de Locais em Memória) ---
-    private val _locais = MutableStateFlow<List<LocalDetalhe>>(emptyList())
-    val locais: StateFlow<List<LocalDetalhe>> = _locais
-    // Cliente de Localização
+    // --- 2. DADOS INTELIGENTES ---
+    // O 'stateIn' converte o fluxo da Base de Dados num Estado sempre atualizado
+    val locais: StateFlow<List<LocalDetalhe>> = repository.locais
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
+
     private val fusedLocationClient = LocationServices.getFusedLocationProviderClient(application)
 
-
     init {
-        // Agora carregamos a partir do ficheiro externo organizado
-        _locais.value = LocaisData.carregarLocaisIniciais()
+        // 3. Ao abrir o mapa, tenta sincronizar (Fire-and-forget)
+        atualizarDados()
+
+        // Pede localização GPS
+        getDeviceLocation()
     }
 
-
-
-    // Adicionar local à lista em memória (Simulação do FAB)
-    fun adicionarLocal(local: LocalDetalhe) {
-        val listaAtual = _locais.value.toMutableList()
-        listaAtual.add(local)
-        _locais.value = listaAtual
+    private fun atualizarDados() {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.syncLocais()
+        }
     }
 
-    // --- RESTANTE CÓDIGO (Location e Search) MANTÉM-SE IGUAL ---
     @android.annotation.SuppressLint("MissingPermission")
     fun getDeviceLocation() {
         try {
@@ -71,18 +80,17 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     fun searchLocation(query: String) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-
-                val localEncontrado = _locais.value.find { local ->
+                // Pesquisa na lista atual (que veio da BD)
+                val localEncontrado = locais.value.find { local ->
                     local.nome.contains(query, ignoreCase = true) ||
                             local.categoria.contains(query, ignoreCase = true)
                 }
 
                 if (localEncontrado != null) {
-                    val newLatLng = com.google.android.gms.maps.model.LatLng(
+                    val newLatLng = LatLng(
                         localEncontrado.latitude,
                         localEncontrado.longitude
                     )
-
                     _cameraLocation.value = newLatLng
                     _searchResultLocation.value = newLatLng
                     _searchResultTitle.value = localEncontrado.nome
