@@ -7,23 +7,31 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.MyLocation
+import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -36,6 +44,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
@@ -44,6 +53,7 @@ import com.example.ipvcconecta.ui.theme.Primary
 import com.example.ipvcconecta.ui.theme.PrimaryDark
 
 import com.example.ipvcconecta.ui.theme.components.locais.LocalDetalhe
+import com.example.ipvcconecta.ui.theme.shett
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
@@ -57,6 +67,7 @@ import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 
 
+@OptIn(ExperimentalMaterial3Api::class) // Necessário para o ModalBottomSheet
 @Composable
 fun MapScreen(
     focusLat: Double? = null,
@@ -71,6 +82,11 @@ fun MapScreen(
     val cameraLocation by viewModel.cameraLocation.collectAsState()
     val searchResultLocation by viewModel.searchResultLocation.collectAsState()
     val searchResultTitle by viewModel.searchResultTitle.collectAsState()
+
+    // <--- NOVO: Estado para guardar o local selecionado (que foi clicado)
+    var selectedLocation by remember { mutableStateOf<LocalDetalhe?>(null) }
+    // Estado para controlar a animação da folha (sheet)
+    val sheetState = rememberModalBottomSheetState()
 
     // Permissões
     val hasLocationPermission = ContextCompat.checkSelfPermission(
@@ -96,9 +112,8 @@ fun MapScreen(
         position = CameraPosition.fromLatLngZoom(defaultLocation, 13f)
     }
 
-    // Atualiza câmara
+    // Lógica da Câmara (GPS vs Foco)
     LaunchedEffect(cameraLocation) {
-        // CORREÇÃO: Só move para a tua localização SE NÃO houver um foco definido
         if (focusLat == null && focusLng == null) {
             cameraLocation?.let {
                 cameraPositionState.position = CameraPosition.fromLatLngZoom(it, 16f)
@@ -110,15 +125,14 @@ fun MapScreen(
         if (focusLat != null && focusLng != null) {
             val posicaoFoco = LatLng(focusLat, focusLng)
             cameraPositionState.animate(
-                update = CameraUpdateFactory.newLatLngZoom(posicaoFoco, 18f), // Zoom 18 para ver bem perto
+                update = CameraUpdateFactory.newLatLngZoom(posicaoFoco, 18f),
                 durationMs = 1500
             )
+            // Opcional: Se quiseres abrir o detalhe automaticamente ao vir do botão "Ver no Mapa":
+            // locais.find { it.latitude == focusLat && it.longitude == focusLng }?.let { selectedLocation = it }
         }
     }
 
-    // --- CORREÇÃO DO ESTILO ---
-    // Usamos 'remember' para não recriar o objeto a cada frame
-    // O JSON remove: POI (Pontos de Interesse), Transit (Paragens) e Road Icons (Símbolos de estrada)
     val mapStyleOptions = remember {
         MapStyleOptions(
             "[" +
@@ -143,23 +157,27 @@ fun MapScreen(
                 modifier = Modifier.weight(1f),
                 cameraPositionState = cameraPositionState,
                 properties = MapProperties(
-                    isMyLocationEnabled = hasLocationPermission, // Mantém a tua posição (ponto azul)
-                    mapStyleOptions = mapStyleOptions            // <--- O ESTILO APLICA-SE AQUI
+                    isMyLocationEnabled = hasLocationPermission,
+                    mapStyleOptions = mapStyleOptions
                 ),
                 uiSettings = MapUiSettings(
                     zoomControlsEnabled = false,
                     mapToolbarEnabled = false
                 )
             ) {
-                // Os teus marcadores do IPVC
+                // Marcadores dos Locais
                 locais.forEach { local ->
                     Marker(
                         state = MarkerState(position = LatLng(local.latitude, local.longitude)),
-                        title = local.nome,
-                        snippet = local.categoria,
+                        title = local.nome, // O título continua a aparecer pequeno por cima
                         icon = com.google.android.gms.maps.model.BitmapDescriptorFactory.defaultMarker(
-                            com.example.ipvcconecta.ui.theme.components.mapa.MapUtils.getMarkerIcon(local.categoria)
-                        )
+                            MapUtils.getMarkerIcon(local.categoria)
+                        ),
+                        // <--- NOVO: Ao clicar, guardamos este local na variável e abrimos a sheet
+                        onClick = {
+                            selectedLocation = local
+                            false // Retornar false permite que o mapa centre no marcador (comportamento padrão)
+                        }
                     )
                 }
 
@@ -179,13 +197,94 @@ fun MapScreen(
         AddLocationFAB(
             modifier = Modifier.align(Alignment.BottomEnd),
             onClick = {
-                // Simulação de adicionar
-                val centroMapa = cameraPositionState.position.target
-                val novoLocal = LocalDetalhe("Novo Ponto", "Utilizador", "Criado pelo FAB", "Localizado no mapa", "Sempre aberto", centroMapa.latitude, centroMapa.longitude)
-                viewModel.adicionarLocal(novoLocal)
-                Toast.makeText(context, "Ponto adicionado!", Toast.LENGTH_SHORT).show()
+               // val centroMapa = cameraPositionState.position.target
+               // val novoLocal = LocalDetalhe("Novo Ponto", "Utilizador", "Criado pelo FAB", "Localizado no mapa", "Sempre aberto", centroMapa.latitude, centroMapa.longitude)
+                //viewModel.adicionarLocal(novoLocal)
+                //Toast.makeText(context, "Ponto adicionado!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Funcionalidade em manutenção (Modo Leitura)", Toast.LENGTH_SHORT).show()
             }
         )
+
+        // <--- NOVO: O Modal (Sheet) que aparece quando clicas num marcador
+        if (selectedLocation != null) {
+            ModalBottomSheet(
+                onDismissRequest = {
+                    selectedLocation = null // Fecha o modal ao clicar fora
+                },
+                sheetState = sheetState,
+                containerColor = shett// Fundo branco como no design limpo
+            ) {
+                // Conteúdo do Modal (Informação do Local)
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 24.dp, end = 24.dp, bottom = 48.dp) // Padding generoso
+                ) {
+                    // Categoria pequena
+                    Text(
+                        text = selectedLocation!!.categoria.uppercase(),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = Primary,
+                        fontWeight = FontWeight.Bold
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // Nome Grande
+                    Text(
+                        text = selectedLocation!!.nome,
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Descrição
+                    Text(
+                        text = selectedLocation!!.descricao,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.Gray
+                    )
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    // Horário (com ícone)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.Schedule,
+                            contentDescription = "Horário",
+                            tint = Color.White
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(
+                            text = "Horário: ${selectedLocation!!.horario}",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Medium,
+                            color = Color.White
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    // Morada (com ícone)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.LocationOn,
+                            contentDescription = "Morada",
+                            tint = Color.White
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(
+                            text = selectedLocation!!.morada,
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Medium,
+                            color = Color.White
+                        )
+                    }
+                }
+            }
+        }
     }
 }
 

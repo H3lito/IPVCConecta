@@ -9,17 +9,25 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface FavoritoDao {
-    // Devolve uma lista que se atualiza sozinha (Flow)
-    @Query("SELECT * FROM favoritos")
-    fun getFavoritos(): Flow<List<FavoritoEntity>>
+    // ⚠️ ALTERADO: Agora pedimos apenas os favoritos DESTE utilizador
+    @Query("SELECT * FROM favoritos WHERE userId = :userId")
+    fun getFavoritos(userId: String): Flow<List<FavoritoEntity>>
 
-    // Verifica se já existe (para pintar o coração)
-    @Query("SELECT EXISTS(SELECT 1 FROM favoritos WHERE nome = :nome LIMIT 1)")
-    suspend fun isFavorito(nome: String): Boolean
+    // ⚠️ ALTERADO: Verificamos se ESTE utilizador tem este favorito
+    @Query("SELECT EXISTS(SELECT 1 FROM favoritos WHERE nome = :nome AND userId = :userId LIMIT 1)")
+    suspend fun isFavorito(nome: String, userId: String): Boolean
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertFavorito(favorito: FavoritoEntity)
 
     @Delete
     suspend fun deleteFavorito(favorito: FavoritoEntity)
+
+
+    // --- CACHE DO MAPA (Mantém-se igual, é global para todos) ---
+    @Query("SELECT * FROM locais_table")
+    fun getAllLocais(): Flow<List<LocalEntity>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAllLocais(locais: List<LocalEntity>)
 }

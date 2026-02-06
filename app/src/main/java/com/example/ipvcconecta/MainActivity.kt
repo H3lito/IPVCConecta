@@ -11,11 +11,15 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.ipvcconecta.ui.theme.ExplorarRoute
+import com.example.ipvcconecta.ui.theme.FavoritoRoute
 import com.example.ipvcconecta.ui.theme.IPVCConectaTheme
 import com.example.ipvcconecta.ui.theme.LoginRoute
 import com.example.ipvcconecta.ui.theme.MapRoute
+import com.example.ipvcconecta.ui.theme.PerfilRoute
 import com.example.ipvcconecta.ui.theme.RegisterRouter
 import com.example.ipvcconecta.ui.theme.navigation.BottomNavigationBar
 import com.example.ipvcconecta.ui.theme.navigation.NavHostContainer
@@ -50,30 +54,34 @@ fun Scaffolding() {
     val navController = rememberNavController()
     val authViewModel: AuthViewModel = viewModel()
     val authState by authViewModel.authState.observeAsState()
-    //---------------------------
+
+    // 1. Obter a entrada atual da pilha de navegação
     val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = navBackStackEntry?.destination?.route
-    //-----------------------
+    val currentDestination = navBackStackEntry?.destination
 
-    //---------------
-    val showBottomBar = currentRoute !in listOf("LoginRoute", "RegisterRoute")
+    // 2. Lógica CORRETA para Type-Safe Navigation
+    // A barra aparece APENAS se estivermos num destes ecrãs principais:
+    val showBottomBar = currentDestination?.hasRoute<MapRoute>() == true ||
+            currentDestination?.hasRoute<ExplorarRoute>() == true ||
+            currentDestination?.hasRoute<FavoritoRoute>() == true ||
+            currentDestination?.hasRoute<PerfilRoute>() == true
 
-    LaunchedEffect(authState){
-        if(authState is AuthState.Authenticated){
-            navController.navigate(MapRoute()){
-                popUpTo("LoginRoute"){ inclusive = true}
-                popUpTo("RegisterRoute"){inclusive = true}
+    LaunchedEffect(authState) {
+        if (authState is AuthState.Authenticated) {
+            navController.navigate(MapRoute()) {
+                popUpTo(LoginRoute) { inclusive = true }    // Usa o objeto da rota, não string
+                popUpTo(RegisterRouter) { inclusive = true } // Usa o objeto da rota
             }
         }
     }
 
     Scaffold(
         bottomBar = {
-            if(showBottomBar) {
+            if (showBottomBar) {
                 BottomNavigationBar(navController = navController)
-            }},
+            }
+        },
         content = { padding ->
-            // Nav host: where screens are placed
             NavHostContainer(
                 navController = navController,
                 padding = padding,
@@ -82,4 +90,3 @@ fun Scaffolding() {
         }
     )
 }
-

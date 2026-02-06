@@ -1,5 +1,9 @@
 package com.example.ipvcconecta.ui.theme.components.perfil
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -16,12 +20,13 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.filled.CloudUpload
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -33,9 +38,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
+
 
 @Composable
 fun PerfilScreen(
@@ -45,58 +53,99 @@ fun PerfilScreen(
 ) {
     val nome by viewModel.nome.collectAsState()
     val email by viewModel.email.collectAsState()
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
+    val fotoUri by viewModel.fotoUri.collectAsState()
 
-        PerfilHeader()
+    // 1. LER O ESTADO DE LOADING
+    val isLoading by viewModel.isLoading.collectAsState()
 
-        Spacer(modifier = Modifier.height(24.dp))
+    val photoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),
+        onResult = { uri: Uri? ->
+            if (uri != null) {
+                viewModel.atualizarFoto(uri)
+            }
+        }
+    )
 
-        PerfilAvatar()
+    // 2. USAR UM BOX COMO RAIZ (Para empilhar o loading por cima)
+    Box(modifier = Modifier.fillMaxSize()) {
 
-        Spacer(modifier = Modifier.height(16.dp))
+        // --- CONTEÚDO DO ECRÃ (Fica por baixo) ---
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.White),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
 
-        Text(
-            text = "Nome do Utilizador",
-            style = MaterialTheme.typography.titleMedium
-        )
+            PerfilHeader()
 
-        Text(
-            text = "email@ipvc.pt",
-            style = MaterialTheme.typography.bodyMedium,
-            color = Color.Gray
-        )
+            Spacer(modifier = Modifier.height(24.dp))
 
-        Spacer(modifier = Modifier.height(32.dp))
+            PerfilAvatar(fotoUri = fotoUri)
 
-        PerfilOption(
-            text = "Favoritos",
-            icon = Icons.Default.Favorite,
-            onClick = onFavoritosClick
-        )
+            Spacer(modifier = Modifier.height(16.dp))
 
-        PerfilOption(
-            text = "Alterar foto",
-            icon = Icons.Default.Edit,
-            onClick = { }
-        )
+            Text(
+                text = nome,
+                style = MaterialTheme.typography.titleMedium
+            )
 
-        PerfilOption(
-            text = "Sair",
-            icon = Icons.AutoMirrored.Filled.ExitToApp, // Usei a versão mais recente do ícone
-            onClick = {
-                viewModel.logout() // 1. Faz logout no Firebase
-                onLogoutClick()    // 2. Navega para o Login (Adiciona os parênteses aqui!)
-            },
-            isDanger = true
-        )
+            Text(
+                text = email,
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.Gray
+            )
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            PerfilOption(
+                text = "Favoritos",
+                icon = Icons.Default.Favorite,
+                onClick = onFavoritosClick
+            )
+
+            PerfilOption(
+                text = "Alterar foto",
+                icon = Icons.Default.Edit,
+                onClick = {
+                    photoPickerLauncher.launch(
+                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                    )
+                }
+            )
+
+            PerfilOption(
+                text = "Sair",
+                icon = Icons.AutoMirrored.Filled.ExitToApp,
+                onClick = {
+                    viewModel.logout()
+                    onLogoutClick()
+                },
+                isDanger = true
+            )
+        }
+
+        // --- INDICADOR DE CARREGAMENTO (Fica por cima) ---
+        if (isLoading) {
+            // Fundo semi-transparente para bloquear cliques enquanto carrega
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.3f))
+                    .clickable(enabled = false) {} // Bloqueia cliques
+            )
+
+            // O Spinner propriamente dito
+            CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.Center),
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
     }
 }
 
+// --- (As funções PerfilHeader, PerfilAvatar e PerfilOption mantêm-se iguais abaixo) ---
 @Composable
 fun PerfilHeader() {
     Box(
@@ -113,22 +162,32 @@ fun PerfilHeader() {
 }
 
 @Composable
-fun PerfilAvatar() {
+fun PerfilAvatar(fotoUri: Uri?) {
     Box(
+        contentAlignment = Alignment.Center,
         modifier = Modifier
-            .size(96.dp)
+            .size(120.dp)
             .clip(CircleShape)
-            .background(Color.LightGray),
-        contentAlignment = Alignment.Center
+            .background(Color(0xFFE0E0E0))
     ) {
-        Icon(
-            imageVector = Icons.Default.Person,
-            contentDescription = null,
-            tint = Color.White,
-            modifier = Modifier.size(48.dp)
-        )
+        if (fotoUri != null) {
+            AsyncImage(
+                model = fotoUri,
+                contentDescription = "Foto de Perfil",
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
+            )
+        } else {
+            Icon(
+                imageVector = Icons.Default.Person,
+                contentDescription = null,
+                tint = Color.White,
+                modifier = Modifier.size(60.dp)
+            )
+        }
     }
 }
+
 @Composable
 fun PerfilOption(
     text: String,
@@ -145,8 +204,7 @@ fun PerfilOption(
         elevation = CardDefaults.cardElevation(2.dp)
     ) {
         Row(
-            modifier = Modifier
-                .padding(16.dp),
+            modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
@@ -165,7 +223,6 @@ fun PerfilOption(
         }
     }
 }
-
 @Preview(showBackground = true)
 @Composable
 fun PerfilPreview() {

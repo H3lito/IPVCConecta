@@ -2,8 +2,10 @@ package com.example.ipvcconecta.ui.theme.components.locais
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,10 +14,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -25,45 +35,53 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.ipvcconecta.ui.theme.PrimaryDark
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListaLocaisScreen(
     categoria: String,
-    onLocalClick: (LocalDetalhe) -> Unit = {}
+    locais: List<LocalDetalhe>, // <--- NOVO: Recebe a lista viva (do Room/Firebase)
+    onLocalClick: (LocalDetalhe) -> Unit,
+    onBackClick: () -> Unit
 ) {
-    // 1. Filtrar os dados reais do ficheiro LocaisData
-    val locaisFiltrados = remember(categoria) {
-        LocaisData.carregarLocaisIniciais().filter { local ->
-            // Normalizamos para minúsculas para evitar erros (ex: "Escola" vs "escola")
-            local.categoria.equals(categoria, ignoreCase = true)
+    // 1. Filtramos a lista viva pela categoria escolhida
+    val locaisFiltrados = locais.filter { it.categoria == categoria }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(text = categoria) },
+                navigationIcon = {
+                    IconButton(onClick = onBackClick) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar")
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = Color.White,
+                    navigationIconContentColor = Color.White
+                )
+            )
         }
-    }
-
-    Column(
-        modifier = Modifier.fillMaxSize().background(Color.White)
-    ) {
-        // Cabeçalho Simples
-        Box(
-            modifier = Modifier.fillMaxWidth().height(56.dp).background(Color.White),
-            contentAlignment = Alignment.Center
-        ) {
-            Text("IPVCConecta", style = MaterialTheme.typography.titleMedium, color = PrimaryDark)
-        }
-
-        // Título da Categoria
-        Text(
-            text = categoria,
-            style = MaterialTheme.typography.headlineMedium,
-            modifier = Modifier.padding(16.dp),
-            color = Color.Black
-        )
-
+    ) { paddingValues ->
+        // 2. Se a lista estiver vazia (ex: acabaste de criar a categoria e ainda não tem locais)
         if (locaisFiltrados.isEmpty()) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text("Sem locais nesta categoria.")
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("Ainda não existem locais nesta categoria.", color = Color.Gray)
             }
         } else {
+            // 3. Lista Normal
             LazyColumn(
-                modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .background(Color(0xFFF5F5F5)),
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(locaisFiltrados) { local ->
                     LocalCard(local = local, onClick = { onLocalClick(local) })
@@ -73,18 +91,28 @@ fun ListaLocaisScreen(
     }
 }
 
+// O LocalCard mantém-se igual (podes mantê-lo no fundo do ficheiro como tinhas)
 @Composable
 fun LocalCard(local: LocalDetalhe, onClick: () -> Unit) {
     Card(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp).clickable { onClick() },
-        shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(4.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5))
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() },
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(local.nome, style = MaterialTheme.typography.titleMedium, color = Color.Black)
+            Text(
+                text = local.nome,
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary
+            )
             Spacer(modifier = Modifier.height(4.dp))
-            Text(local.descricao, style = MaterialTheme.typography.bodyMedium, color = Color.Gray, maxLines = 2)
+            Text(
+                text = local.morada,
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.Gray
+            )
         }
     }
 }

@@ -12,6 +12,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -27,10 +28,15 @@ import com.example.ipvcconecta.ui.theme.data.model.LocalFavorito
 
 @Composable
 fun FavoritosScreen(
+
     viewModel: FavoritosViewModel = viewModel(),
     onLocalClick: (LocalDetalhe) -> Unit = {} // Recebe LocalDetalhe
 ) {
     val favoritos by viewModel.favoritos.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.checkUser()
+    }
 
     Column(
         modifier = Modifier

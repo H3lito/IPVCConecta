@@ -9,6 +9,7 @@ class ExplorarViewModel : ViewModel() {
     private val _categorias = MutableStateFlow(
         listOf(
             "Escolas",
+            "Biblioteca",
             "Alimentação",
             "Alojamento",
             "Transportes",
