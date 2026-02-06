@@ -62,35 +62,46 @@ configurations.all {
 
 
 dependencies {
+    //Image
+    implementation("io.coil-kt:coil-compose:2.5.0")
+    implementation(libs.ui)
+    implementation(libs.androidx.foundation.layout)
+
     // Room Database
     val room_version = "2.6.1"
     implementation("androidx.room:room-runtime:$room_version")
     implementation("androidx.room:room-ktx:$room_version")
-    kapt("androidx.room:room-compiler:$room_version") // Se usares ksp, senão usa kapt
+    kapt("androidx.room:room-compiler:$room_version")
 
-    //Google maps
+    // Google Maps
     implementation("com.google.maps.android:maps-compose:2.11.4")
     implementation("com.google.android.gms:play-services-maps:19.1.0")
     implementation("com.google.android.gms:play-services-location:21.3.0")
+
+    // Jetpack Compose & Lifecycle
     implementation(libs.androidx.compose.runtime)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.navigation.safe.args.generator)
-    //firebase
+
+    // --- FIREBASE (CONFIGURAÇÃO CORRETA) ---
+    // A Plataforma (BoM) que controla as versões (33.4.0)
     implementation(platform("com.google.firebase:firebase-bom:33.4.0"))
-    implementation("com.google.firebase:firebase-auth-ktx")
+
+    // Firestore (Sem versão escrita, a BoM decide)
+    implementation("com.google.firebase:firebase-firestore")
+
+    // Auth (ADICIONEI ISTO PARA CORRIGIR O TEU ERRO DO LOGIN)
+    implementation("com.google.firebase:firebase-auth")
+
+    // Livedata
     implementation(libs.androidx.compose.runtime.livedata)
-
-
+    // Storage
+    implementation("com.google.firebase:firebase-storage")
+    // ---------------------------------------
 
     val nav_version = "2.9.6"
-    // Jetpack Compose Integration
     implementation("androidx.navigation:navigation-compose:$nav_version")
-
-    // Json Serialization
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
-
-
-    //Materiais
     implementation("androidx.compose.material:material-icons-extended")
 
     implementation(libs.androidx.core.ktx)

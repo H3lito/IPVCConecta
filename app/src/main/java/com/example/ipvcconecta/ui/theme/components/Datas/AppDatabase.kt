@@ -5,8 +5,10 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [FavoritoEntity::class], version = 1, exportSchema = false)
+/// ⚠️ MUDANÇA: Versão alterada para 3
+@Database(entities = [FavoritoEntity::class, LocalEntity::class], version = 3, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
+
     abstract fun favoritoDao(): FavoritoDao
 
     companion object {
@@ -19,7 +21,9 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "ipvc_conecta_db"
-                ).build()
+                )
+                    .fallbackToDestructiveMigration() // Vai limpar a BD ao atualizar para a v3
+                    .build()
                 INSTANCE = instance
                 instance
             }

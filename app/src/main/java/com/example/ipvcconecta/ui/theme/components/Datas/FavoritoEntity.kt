@@ -3,9 +3,10 @@ package com.example.ipvcconecta.ui.theme.components.Datas
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "favoritos")
+@Entity(tableName = "favoritos", primaryKeys = ["nome", "userId"])
 data class FavoritoEntity(
-    @PrimaryKey val nome: String, // O nome serve como ID único
+    val userId: String, // <--- NOVO CAMPO: Quem guardou este favorito
+    val nome: String,
     val categoria: String,
     val descricao: String,
     val morada: String,

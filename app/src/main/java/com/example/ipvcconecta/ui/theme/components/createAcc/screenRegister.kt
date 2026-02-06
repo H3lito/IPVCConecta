@@ -77,7 +77,7 @@ fun RegisterScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
-                Text("Register", style = MaterialTheme.typography.titleLarge)
+                Text("Register", style = MaterialTheme.typography.titleLarge, color = PrimaryDark)
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Icon(
@@ -92,30 +92,54 @@ fun RegisterScreen(
                 OutlinedTextField(
                     value = nome.value,
                     onValueChange = { nome.value = it },
-                    label = { Text("Nome") }
+                    label = { Text("Nome") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(60.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    singleLine = true
                 )
+                Spacer(modifier = Modifier.height(16.dp))
 
                 OutlinedTextField(
                     value = email.value,
                     onValueChange = { email.value = it },
-                    label = { Text("E-mail") }
+                    label = { Text("E-mail") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(60.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    singleLine = true
                 )
+                Spacer(modifier = Modifier.height(16.dp))
 
                 OutlinedTextField(
                     value = password.value,
                     onValueChange = { password.value = it },
                     label = { Text("Password") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(60.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    singleLine = true,
                     visualTransformation = if (passwordVisible)
                         VisualTransformation.None else PasswordVisualTransformation()
                 )
+                Spacer(modifier = Modifier.height(16.dp))
 
                 OutlinedTextField(
                     value = confirmPass.value,
                     onValueChange = { confirmPass.value = it },
                     label = { Text("Confirm Password") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(60.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    singleLine = true,
                     visualTransformation = if (confirmPasswordVisible)
                         VisualTransformation.None else PasswordVisualTransformation()
                 )
+                Spacer(modifier = Modifier.height(8.dp))
 
                 when (authState) {
                     is AuthState.Loading -> CircularProgressIndicator()
@@ -125,6 +149,7 @@ fun RegisterScreen(
                     )
                     else -> Unit
                 }
+                Spacer(modifier = Modifier.height(10.dp))
 
                 Button(
                     onClick = {
@@ -135,13 +160,21 @@ fun RegisterScreen(
                             confirmPass.value
                         )
                     },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp),
+                    shape = RoundedCornerShape(24.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Primary),
                     enabled = authState !is AuthState.Loading
                 ) {
                     Text("Register")
                 }
 
                 TextButton(onClick = onGoToLogin) {
-                    Text("Already have an account? Login")
+                    Text("Already have an account? Login",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = PrimaryDark
+                    )
                 }
             }
         }
