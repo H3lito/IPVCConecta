@@ -66,6 +66,7 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.5.0")
     implementation(libs.ui)
     implementation(libs.androidx.foundation.layout)
+    implementation(libs.androidx.benchmark.traceprocessor)
 
     // Room Database
     val room_version = "2.6.1"

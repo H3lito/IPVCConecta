@@ -19,12 +19,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.ipvcconecta.ui.theme.Primary
 import com.example.ipvcconecta.ui.theme.components.locais.LocalDetalhe
 import com.example.ipvcconecta.ui.theme.components.mapa.MapScreen
 import com.example.ipvcconecta.ui.theme.data.model.LocalFavorito
+import com.example.ipvcconecta.ui.theme.shett
 
 @Composable
 fun FavoritosScreen(
@@ -62,12 +65,15 @@ fun FavoritosHeader() {
     Box(
         modifier = Modifier
             .fillMaxWidth()
+            .background(shett)
             .height(56.dp),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = "Os Meus Favoritos ❤️",
-            style = MaterialTheme.typography.titleMedium
+            style = MaterialTheme.typography.titleLarge,
+            color = Color.White,
+            fontWeight = FontWeight.Bold,
         )
     }
 }
@@ -81,7 +87,7 @@ fun FavoritosEmptyState() {
         Text(
             text = "Ainda não adicionaste favoritos",
             style = MaterialTheme.typography.bodyMedium,
-            color = Color.Gray
+            color = Primary
         )
     }
 }

@@ -26,10 +26,14 @@ data class DetalheLocalRoute(
 )
 
 @Serializable
-object AdicionarLocalRoute
-
+data class AdicionarLocalRoute(
+    val lat: Double,
+    val lng: Double
+)
 @Serializable
 object FavoritoRoute
 
 @Serializable
 object PerfilRoute
+@Serializable
+object GuiaSouNovoRoute

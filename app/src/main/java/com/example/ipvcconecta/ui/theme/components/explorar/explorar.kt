@@ -35,19 +35,23 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.ipvcconecta.ui.theme.Background
+import com.example.ipvcconecta.ui.theme.Primary
 import com.example.ipvcconecta.ui.theme.PrimaryDark
 import com.example.ipvcconecta.ui.theme.components.mapa.MapHeader
 import com.example.ipvcconecta.ui.theme.components.mapa.SearchBar
+import com.example.ipvcconecta.ui.theme.shett
 
 @Composable
 fun ExplorarScreen(
     viewModel: ExplorarViewModel = viewModel(),
     onCategoryClick: (String) -> Unit = {}) {
     val categorias by viewModel.categorias.collectAsState()
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = Modifier.fillMaxSize().background(Color.White)) {
         Column(modifier = Modifier.fillMaxSize()) {
             com.example.ipvcconecta.ui.theme.components.explorar.MapHeader()
 
@@ -66,13 +70,14 @@ fun MapHeader() {
         modifier = Modifier
             .fillMaxWidth()
             .height(56.dp)
-            .background(Color.White),
+            .background(shett),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = "IPVCConecta",
-            style = MaterialTheme.typography.titleMedium,
-            color = PrimaryDark
+            style = MaterialTheme.typography.titleLarge,
+            color = Color.White,
+            fontWeight = FontWeight.Bold
         )
     }
 }
@@ -91,8 +96,10 @@ fun ExplorarContent(
     ) {
         Text(
             text = "Explorar Serviços",
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(vertical = 16.dp)
+            style = MaterialTheme.typography.titleLarge,
+            modifier = Modifier.padding(vertical = 16.dp),
+            color= Primary,
+            fontWeight = FontWeight.Bold
         )
 
         categorias.forEach { categoria ->
@@ -127,10 +134,10 @@ fun ExplorarItem(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 6.dp)
-            .clickable { onClick(title) },
+            .clickable { onClick(title)},
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color(0xFFE0E0E0)
+            containerColor = shett
         ),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
@@ -142,11 +149,15 @@ fun ExplorarItem(
             Text(
                 text = title,
                 modifier = Modifier.weight(1f),
-                style = MaterialTheme.typography.bodyLarge
+                style = MaterialTheme.typography.bodyLarge,
+                color = Color.White,
+                fontWeight = FontWeight.Bold
             )
             Icon(
                 imageVector = icon,
-                contentDescription = null
+                contentDescription = null,
+                tint = Color.White
+
             )
         }
     }

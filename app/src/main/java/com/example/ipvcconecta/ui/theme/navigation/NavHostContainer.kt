@@ -16,6 +16,7 @@ import com.example.ipvcconecta.ui.theme.AdicionarLocalRoute
 import com.example.ipvcconecta.ui.theme.DetalheLocalRoute
 import com.example.ipvcconecta.ui.theme.ExplorarRoute
 import com.example.ipvcconecta.ui.theme.FavoritoRoute
+import com.example.ipvcconecta.ui.theme.GuiaSouNovoRoute
 import com.example.ipvcconecta.ui.theme.ListaLocaisRoute
 import com.example.ipvcconecta.ui.theme.LoginRoute
 import com.example.ipvcconecta.ui.theme.MapRoute
@@ -25,6 +26,8 @@ import com.example.ipvcconecta.ui.theme.components.createAcc.RegisterScreen
 import com.example.ipvcconecta.ui.theme.components.explorar.ExplorarScreen
 import com.example.ipvcconecta.ui.theme.components.favoritos.FavoritosScreen
 import com.example.ipvcconecta.ui.theme.components.favoritos.FavoritosViewModel
+import com.example.ipvcconecta.ui.theme.components.guia.GuiaSouNovoScreen
+import com.example.ipvcconecta.ui.theme.components.locais.AdicionarLocalScreen
 import com.example.ipvcconecta.ui.theme.components.locais.DetalheLocalScreen
 import com.example.ipvcconecta.ui.theme.components.locais.ListaLocaisScreen
 import com.example.ipvcconecta.ui.theme.components.locais.LocalDetalhe
@@ -84,9 +87,19 @@ fun NavHostContainer(
                     focusLat = args.lat,
                     focusLng = args.lng,
                     viewModel = mapViewModel, // <--- Passamos o mesmo ViewModel para partilhar dados
-                    onNavigateToAddLocation = {
-                        navController.navigate(AdicionarLocalRoute)
+                    onNavigateToAddLocation = { lat, lng ->
+                        // Recebe as coordenadas do botão FAB e navega
+                        navController.navigate(AdicionarLocalRoute(lat, lng))
                     }
+                )
+            }
+            composable<AdicionarLocalRoute> { backStackEntry ->
+                val args = backStackEntry.toRoute<AdicionarLocalRoute>()
+
+                AdicionarLocalScreen(
+                    lat = args.lat,
+                    lng = args.lng,
+                    onBackClick = { navController.popBackStack() }
                 )
             }
             composable<ExplorarRoute> {
@@ -162,11 +175,19 @@ fun NavHostContainer(
                             launchSingleTop = true
                         }
                     },
+                    onGuiaClick = {
+                        navController.navigate(GuiaSouNovoRoute)
+                    },
                     onLogoutClick = {
                         navController.navigate(LoginRoute) {
                             popUpTo(0) { inclusive = true }
                         }
                     }
+                )
+            }
+            composable<GuiaSouNovoRoute> {
+                GuiaSouNovoScreen(
+                    onBackClick = { navController.popBackStack() }
                 )
             }
         }

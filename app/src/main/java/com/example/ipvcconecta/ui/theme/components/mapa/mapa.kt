@@ -66,14 +66,14 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 
-
-@OptIn(ExperimentalMaterial3Api::class) // Necessário para o ModalBottomSheet
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MapScreen(
     focusLat: Double? = null,
     focusLng: Double? = null,
     viewModel: MapViewModel = viewModel(),
-    onNavigateToAddLocation: () -> Unit = {}
+    // ⚠️ ALTERADO: Agora aceita (Latitude, Longitude)
+    onNavigateToAddLocation: (Double, Double) -> Unit = { _, _ -> }
 ) {
     val context = LocalContext.current
     val locais by viewModel.locais.collectAsState()
@@ -83,9 +83,8 @@ fun MapScreen(
     val searchResultLocation by viewModel.searchResultLocation.collectAsState()
     val searchResultTitle by viewModel.searchResultTitle.collectAsState()
 
-    // <--- NOVO: Estado para guardar o local selecionado (que foi clicado)
+    // Estado para guardar o local selecionado
     var selectedLocation by remember { mutableStateOf<LocalDetalhe?>(null) }
-    // Estado para controlar a animação da folha (sheet)
     val sheetState = rememberModalBottomSheetState()
 
     // Permissões
@@ -112,7 +111,7 @@ fun MapScreen(
         position = CameraPosition.fromLatLngZoom(defaultLocation, 13f)
     }
 
-    // Lógica da Câmara (GPS vs Foco)
+    // Lógica da Câmara
     LaunchedEffect(cameraLocation) {
         if (focusLat == null && focusLng == null) {
             cameraLocation?.let {
@@ -128,8 +127,6 @@ fun MapScreen(
                 update = CameraUpdateFactory.newLatLngZoom(posicaoFoco, 18f),
                 durationMs = 1500
             )
-            // Opcional: Se quiseres abrir o detalhe automaticamente ao vir do botão "Ver no Mapa":
-            // locais.find { it.latitude == focusLat && it.longitude == focusLng }?.let { selectedLocation = it }
         }
     }
 
@@ -169,14 +166,13 @@ fun MapScreen(
                 locais.forEach { local ->
                     Marker(
                         state = MarkerState(position = LatLng(local.latitude, local.longitude)),
-                        title = local.nome, // O título continua a aparecer pequeno por cima
+                        title = local.nome,
                         icon = com.google.android.gms.maps.model.BitmapDescriptorFactory.defaultMarker(
                             MapUtils.getMarkerIcon(local.categoria)
                         ),
-                        // <--- NOVO: Ao clicar, guardamos este local na variável e abrimos a sheet
                         onClick = {
                             selectedLocation = local
-                            false // Retornar false permite que o mapa centre no marcador (comportamento padrão)
+                            false
                         }
                     )
                 }
@@ -194,53 +190,57 @@ fun MapScreen(
             }
         }
 
+
+        // ⚠️ O BOTÃO FAB AGORA FUNCIONA
         AddLocationFAB(
             modifier = Modifier.align(Alignment.BottomEnd),
             onClick = {
-               // val centroMapa = cameraPositionState.position.target
-               // val novoLocal = LocalDetalhe("Novo Ponto", "Utilizador", "Criado pelo FAB", "Localizado no mapa", "Sempre aberto", centroMapa.latitude, centroMapa.longitude)
-                //viewModel.adicionarLocal(novoLocal)
-                //Toast.makeText(context, "Ponto adicionado!", Toast.LENGTH_SHORT).show()
-                Toast.makeText(context, "Funcionalidade em manutenção (Modo Leitura)", Toast.LENGTH_SHORT).show()
+                // 1. Capturar o centro do ecrã
+                val centroMapa = cameraPositionState.position.target
+
+                // 2. Navegar enviando as coordenadas
+                onNavigateToAddLocation(centroMapa.latitude, centroMapa.longitude)
             }
         )
 
-        // <--- NOVO: O Modal (Sheet) que aparece quando clicas num marcador
+        // Modal Bottom Sheet
         if (selectedLocation != null) {
             ModalBottomSheet(
+
                 onDismissRequest = {
-                    selectedLocation = null // Fecha o modal ao clicar fora
+                    selectedLocation = null
+
                 },
                 sheetState = sheetState,
-                containerColor = shett// Fundo branco como no design limpo
+                //containerColor = MaterialTheme.colorScheme.surface // Corrigido o erro de compilação 'shett'
+                containerColor = shett,
+                contentColor = Color.White
+
             ) {
-                // Conteúdo do Modal (Informação do Local)
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(start = 24.dp, end = 24.dp, bottom = 48.dp) // Padding generoso
+                        .padding(start = 24.dp, end = 24.dp, bottom = 48.dp)
+
                 ) {
-                    // Categoria pequena
                     Text(
                         text = selectedLocation!!.categoria.uppercase(),
                         style = MaterialTheme.typography.labelMedium,
                         color = Primary,
+
                         fontWeight = FontWeight.Bold
                     )
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    // Nome Grande
                     Text(
                         text = selectedLocation!!.nome,
                         style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
+                        fontWeight = FontWeight.Bold
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Descrição
                     Text(
                         text = selectedLocation!!.descricao,
                         style = MaterialTheme.typography.bodyMedium,
@@ -249,46 +249,35 @@ fun MapScreen(
 
                     Spacer(modifier = Modifier.height(24.dp))
 
-                    // Horário (com ícone)
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Default.Schedule,
-                            contentDescription = "Horário",
-                            tint = Color.White
-                        )
+                        Icon(Icons.Default.Schedule, contentDescription = "Horário")
                         Spacer(modifier = Modifier.width(12.dp))
                         Text(
                             text = "Horário: ${selectedLocation!!.horario}",
                             style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.Medium,
-                            color = Color.White
+                            fontWeight = FontWeight.Medium
                         )
                     }
 
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    // Morada (com ícone)
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Default.LocationOn,
-                            contentDescription = "Morada",
-                            tint = Color.White
-                        )
+                        Icon(Icons.Default.LocationOn, contentDescription = "Morada")
                         Spacer(modifier = Modifier.width(12.dp))
                         Text(
                             text = selectedLocation!!.morada,
                             style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.Medium,
-                            color = Color.White
+                            fontWeight = FontWeight.Medium
                         )
                     }
                 }
             }
         }
+
     }
 }
 
-// --- Componentes Auxiliares (Header, SearchBar, FAB) ---
+// --- Componentes Auxiliares ---
 
 @Composable
 fun MapHeader() {
@@ -296,13 +285,14 @@ fun MapHeader() {
         modifier = Modifier
             .fillMaxWidth()
             .height(56.dp)
-            .background(Color.White),
+            .background(shett),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = "IPVCConecta",
-            style = MaterialTheme.typography.titleMedium,
-            color = PrimaryDark
+            style = MaterialTheme.typography.titleLarge,
+            color = Color.White,
+            fontWeight = FontWeight.Bold
         )
     }
 }
@@ -315,22 +305,35 @@ fun SearchBar(modifier: Modifier = Modifier, onSearch: (String) -> Unit) {
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .background(Color.White)
-            .padding(horizontal = 16.dp, vertical = 12.dp)
+            .background(shett)
+            .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
     ) {
         OutlinedTextField(
             value = query,
             onValueChange = { query = it },
-            placeholder = { Text("Pesquisar...", color = Color.Gray) },
-            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = Color.Gray) },
+            placeholder = { Text("Pesquisar...", color = Color.White) },
+            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = Primary) },
             singleLine = true,
-            shape = RoundedCornerShape(12.dp),
+            shape = RoundedCornerShape(24.dp),
             modifier = Modifier.fillMaxWidth(),
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
             keyboardActions = KeyboardActions(onSearch = {
                 onSearch(query)
                 keyboardController?.hide()
-            })
+            }),
+            colors = androidx.compose.material3.TextFieldDefaults.colors(
+                // Texto que escreves
+                focusedTextColor = Color.White,
+                unfocusedTextColor = Color.White,
+                // O cursor que pisca
+                cursorColor = Color.White,
+                // Fundo da caixa (transparente ou ligeiramente mais claro para destacar)
+                focusedContainerColor = Color.White.copy(alpha = 0.1f),
+                unfocusedContainerColor = Color.White.copy(alpha = 0.1f),
+                // Cor da borda
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent
+            )
         )
     }
 }
@@ -343,4 +346,5 @@ fun AddLocationFAB(modifier: Modifier = Modifier, onClick: () -> Unit) {
         containerColor = Primary
     ) {
         Icon(Icons.Default.Add, contentDescription = "Adicionar local", tint = Color.White)
-    }}
+    }
+}
