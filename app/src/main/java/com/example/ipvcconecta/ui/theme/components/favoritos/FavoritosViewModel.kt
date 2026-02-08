@@ -2,12 +2,10 @@ package com.example.ipvcconecta.ui.theme.components.favoritos
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ipvcconecta.ui.theme.components.Datas.AppDatabase
 import com.example.ipvcconecta.ui.theme.components.Datas.FavoritoEntity
 import com.example.ipvcconecta.ui.theme.components.locais.LocalDetalhe
-import com.example.ipvcconecta.ui.theme.data.model.LocalFavorito
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi

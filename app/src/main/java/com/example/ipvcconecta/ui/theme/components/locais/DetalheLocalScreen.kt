@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Place
@@ -33,8 +32,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.ipvcconecta.ui.theme.Primary
-import com.example.ipvcconecta.ui.theme.PrimaryDark
-import com.example.ipvcconecta.ui.theme.Surface
 import com.example.ipvcconecta.ui.theme.shett
 
 data class LocalDetalhe(
@@ -127,7 +124,7 @@ fun DetalheHeader(
     ) {
         IconButton(onClick = onBackClick) {
             Icon(
-                imageVector = Icons.Default.ArrowBack, // Ou Icons.AutoMirrored.Filled.ArrowBack
+                imageVector = Icons.AutoMirrored.Filled.ArrowBack, // Ou Icons.AutoMirrored.Filled.ArrowBack
                 contentDescription = "Voltar",
                 tint = Color.White
             )

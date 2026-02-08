@@ -1,6 +1,4 @@
 package com.example.ipvcconecta.ui.theme.components.guia
-
-import androidx.benchmark.traceprocessor.Row
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
@@ -64,20 +62,20 @@ fun GuiaSouNovoScreen(
     // Lista de Perguntas (Podes adicionar mais aqui)
     val listaPerguntas = listOf(
         GuiaItem(
-            "Como chegar à Universidade?",
-            "A Universidade pode ser alcançada através das linhas de autocarro urbano ou a pé, dependendo da localização do estudante. Recomenda-se a utilização de transportes públicos ou as bicicletas partilhadas."
+            "Como chegar à ESTG - IPVC?",
+            "A ESTG-IPVC localiza-se em Viana do Castelo, na Avenida do Atlântico, junto à Praia Norte. O campus é acessível de carro, através da A28 (saída Viana do Castelo Sul), de comboio até à Estação de Viana do Castelo com ligação por autocarro ou táxi, bem como através dos transportes urbanos da cidade. Para quem reside nas proximidades, é também possível chegar a pé ou de bicicleta."
         ),
         GuiaItem(
             "Onde tratar dos documentos?",
-            "Os serviços académicos funcionam no edifício central. Podes tratar de matrículas, passes e declarações no R/C, aberto das 09:00 às 16:00."
+            "Os Serviços Académicos da ESTG-IPVC encontram-se localizados na própria escola. Neste espaço é possível tratar da matrícula, pedidos de declarações (incluindo para emissão de passe), certificados e pagamento de propinas. Os horários de funcionamento são variáveis e estão disponíveis no site oficial do IPVC."
         ),
         GuiaItem(
             "Transportes da Cidade?",
-            "Viana tem uma rede de autocarros urbanos e funicular. Podes comprar o passe mensal na central de camionagem ou usar a app VianaTransportes."
+            "Viana do Castelo dispõe de uma rede de transportes urbanos que liga o centro da cidade, a estação de comboios e as principais zonas residenciais à área da ESTG-IPVC. Existem ainda serviços de táxi e transporte por aplicação que facilitam as deslocações dentro da cidade."
         ),
         GuiaItem(
             "Onde posso comer?",
-            "Existem cantinas em cada escola do IPVC com preços sociais. Também tens o bar dos alunos e vários restaurantes parceiros na cidade."
+            "Cada escola do IPVC dispõe de cantinas com refeições sociais a preços acessíveis. Para além disso, existem várias tascas e restaurantes espalhados pela cidade, assim como um shopping com uma área de restauração que oferece diversas opções de refeição."
         )
     )
 

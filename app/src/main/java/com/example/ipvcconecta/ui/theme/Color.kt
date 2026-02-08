@@ -21,10 +21,4 @@ val Surface = Color(0xFFFFFFFF)
 val shett=Color(0xFF112769)
 
 
-// Texto
-val TextPrimary = Color(0xFF000000)
-val TextSecondary = Color(0xFF6B7280)
 
-// Estados
-val Error = Color(0xFFDC2626)
-val Success = Color(0xFF16A34A)

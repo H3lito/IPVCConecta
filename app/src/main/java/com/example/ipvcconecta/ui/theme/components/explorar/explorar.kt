@@ -11,26 +11,20 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DesignServices
 import androidx.compose.material.icons.filled.DirectionsBus
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.MenuBook
+import androidx.compose.material.icons.filled.LocalLibrary
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.Restaurant
-import androidx.compose.material.icons.filled.RoomService
 import androidx.compose.material.icons.filled.School
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -39,11 +33,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.ipvcconecta.ui.theme.Background
 import com.example.ipvcconecta.ui.theme.Primary
-import com.example.ipvcconecta.ui.theme.PrimaryDark
-import com.example.ipvcconecta.ui.theme.components.mapa.MapHeader
-import com.example.ipvcconecta.ui.theme.components.mapa.SearchBar
 import com.example.ipvcconecta.ui.theme.shett
 
 @Composable
@@ -117,9 +107,8 @@ fun categoriaToIcon(categoria: String): ImageVector {
         "Escolas" -> Icons.Default.School
         "Transportes" -> Icons.Default.DirectionsBus
         "Alimentação" -> Icons.Default.Restaurant
-        "Serviços" -> Icons.Default.RoomService
-        "Bibliotecas e Estudo" -> Icons.Default.MenuBook
-        "Saúde" -> Icons.Default.Favorite
+        "Serviços" -> Icons.Filled.DesignServices
+        "Biblioteca" -> Icons.Default.LocalLibrary
         else -> Icons.Default.Place
     }
 }

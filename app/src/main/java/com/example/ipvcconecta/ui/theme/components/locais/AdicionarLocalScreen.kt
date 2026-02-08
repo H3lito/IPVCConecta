@@ -42,14 +42,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.ipvcconecta.ui.theme.Primary
-import com.example.ipvcconecta.ui.theme.components.locais.AddLocalViewModel
 import com.example.ipvcconecta.ui.theme.shett
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdicionarLocalScreen(
-    lat: Double, // Recebe as coordenadas mas não as mostra
-    lng: Double,
     onBackClick: () -> Unit,
     viewModel: AddLocalViewModel = viewModel()
 ) {
