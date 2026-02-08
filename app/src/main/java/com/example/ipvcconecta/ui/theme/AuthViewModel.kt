@@ -1,3 +1,5 @@
+package com.example.ipvcconecta.ui.theme
+
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -83,7 +85,7 @@ class AuthViewModel : ViewModel() {
             }
     }
 
-    fun signout() {
+    fun signOut() {
         auth.signOut()
         _authState.value = AuthState.Unauthenticated
     }

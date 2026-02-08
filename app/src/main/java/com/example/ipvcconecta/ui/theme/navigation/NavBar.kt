@@ -4,8 +4,6 @@ import androidx.compose.material.icons.filled.Explore
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.PersonPin
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.rounded.Explore
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.example.ipvcconecta.ui.theme.ExplorarRoute
 import com.example.ipvcconecta.ui.theme.FavoritoRoute

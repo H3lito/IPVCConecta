@@ -1,7 +1,5 @@
 package com.example.ipvcconecta.ui.theme.components.mapa
 import android.app.Application
-import android.content.Context
-import android.location.Geocoder
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ipvcconecta.ui.theme.components.Datas.repository.LocaisRepository
@@ -13,9 +11,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import java.util.Locale
 import kotlin.collections.emptyList
 
 class MapViewModel(application: Application) : AndroidViewModel(application) {
@@ -30,8 +28,8 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     private val _searchResultLocation = MutableStateFlow<LatLng?>(null)
     val searchResultLocation: StateFlow<LatLng?> = _searchResultLocation
 
-    private val _searchResultTitle = MutableStateFlow<String>("")
-    val searchResultTitle: StateFlow<String> = _searchResultTitle
+    private val _searchResultTitle = MutableStateFlow("")
+    val searchResultTitle = _searchResultTitle.asStateFlow()
 
     // --- 2. DADOS INTELIGENTES ---
     // O 'stateIn' converte o fluxo da Base de Dados num Estado sempre atualizado
