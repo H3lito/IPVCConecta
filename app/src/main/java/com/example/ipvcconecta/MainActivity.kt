@@ -1,6 +1,6 @@
 package com.example.ipvcconecta
 
-import AuthViewModel
+import com.example.ipvcconecta.ui.theme.AuthViewModel
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -14,6 +14,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.ipvcconecta.ui.theme.AuthState
 import com.example.ipvcconecta.ui.theme.ExplorarRoute
 import com.example.ipvcconecta.ui.theme.FavoritoRoute
 import com.example.ipvcconecta.ui.theme.IPVCConectaTheme

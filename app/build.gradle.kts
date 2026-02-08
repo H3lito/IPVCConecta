@@ -38,9 +38,11 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = false
+            isDebuggable = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
+
             )
         }
     }
@@ -66,6 +68,8 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.5.0")
     implementation(libs.ui)
     implementation(libs.androidx.foundation.layout)
+    implementation(libs.androidx.benchmark.traceprocessor)
+    implementation(libs.androidx.runtime)
 
     // Room Database
     val room_version = "2.6.1"

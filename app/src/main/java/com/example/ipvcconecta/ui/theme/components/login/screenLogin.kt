@@ -1,13 +1,10 @@
 package com.example.ipvcconecta.ui.theme.components.login
 
-import AuthState
-import AuthViewModel
+import com.example.ipvcconecta.ui.theme.AuthState
+import com.example.ipvcconecta.ui.theme.AuthViewModel
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material3.Button
@@ -37,29 +35,35 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
 import com.example.ipvcconecta.ui.theme.Primary
-import com.example.ipvcconecta.ui.theme.PrimaryDark
 import com.example.ipvcconecta.ui.theme.Surface
+import com.example.ipvcconecta.ui.theme.shett
 
 @Composable
 fun LoginScreen(
     authViewModel: AuthViewModel = viewModel(),
-    //onLoginSuccess: () -> Unit = {},
+    onLoginSuccess: () -> Unit = {},
     onGoToRegister: () -> Unit = {}
 ) {
-    val authState by authViewModel.authState.observeAsState(AuthState.Unauthenticated)
+    val authState by authViewModel.authState.observeAsState()
+    LaunchedEffect(authState) {
+        if (authState is AuthState.Authenticated) {
+            onLoginSuccess()
+        }
+    }
 
-    var email = remember { mutableStateOf("") }
-    var password=  remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var password by  remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
-    var forgotPasswordDialogBox = remember { mutableStateOf(false) }
+    var forgotPasswordDialogBox by remember { mutableStateOf(false) }
 
 
     Box(
@@ -84,7 +88,8 @@ fun LoginScreen(
                 Text(
                     text = "Login",
                     style = MaterialTheme.typography.titleLarge,
-                    color = PrimaryDark
+                    color = shett,
+                    fontWeight = FontWeight.Bold,
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -93,35 +98,37 @@ fun LoginScreen(
                     imageVector = Icons.Default.AccountCircle,
                     contentDescription = null,
                     modifier = Modifier.size(54.dp),
-                    tint = PrimaryDark
+                    tint = shett
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
 
                 // Email
                 OutlinedTextField(
-                    value = email.value,
-                    onValueChange = { email.value = it },
+                    value = email,
+                    onValueChange = { email = it },
                     label = { Text("E-mail") },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(60.dp),
                     shape = RoundedCornerShape(12.dp),
-                    singleLine = true
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Password
                 OutlinedTextField(
-                    value = password.value,
-                    onValueChange = { password.value = it },
+                    value = password,
+                    onValueChange = { password = it },
                     label = { Text("Password") },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(60.dp),
                     shape = RoundedCornerShape(12.dp),
                     singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                     visualTransformation = if (passwordVisible)
                         VisualTransformation.None
                     else
@@ -130,38 +137,40 @@ fun LoginScreen(
                         TextButton(onClick = {
                             passwordVisible = !passwordVisible
                         }) {
-                            Text(if (passwordVisible) "Ocultar" else "Mostrar")
+                            Text(if (passwordVisible) "Ocultar" else "Mostrar", color = shett)
                         }
                     }
                 )
-                if (forgotPasswordDialogBox.value){
+                if (forgotPasswordDialogBox){
                     ForgotPasswordDialog(
-                        onDismiss = {forgotPasswordDialogBox.value = false}
+                        onDismiss = {forgotPasswordDialogBox = false}
                     )
                 }
                 // Alinha o botão à direita sem ocupar o ecrã todo
                 Box(modifier = Modifier.fillMaxWidth()) {
                     TextButton(
-                        onClick = { forgotPasswordDialogBox.value = true },
+                        onClick = { forgotPasswordDialogBox = true },
                         modifier = Modifier.align(Alignment.CenterEnd)
                     ) {
                         Text(
                             text = "Esqueceu a palavra-passe?",
                             fontSize = 12.sp, // Aumentei ligeiramente para legibilidade
-                            color = PrimaryDark
+                            color = shett,
+                            fontWeight = FontWeight.Bold,
                         )
                     }
                 }
                 Spacer(modifier = Modifier.height(8.dp))
 
                 // Erro
-               /* if (authState is AuthState.Error) {
+                if (authState is AuthState.Error) {
                     Text(
                         text = (authState as AuthState.Error).message,
                         color = Color.Red,
-                        style = MaterialTheme.typography.bodySmall
+                        fontSize = 12.sp
+
                     )
-                }*/
+                }
                 when(authState){
                     is AuthState.Loading ->{
                         CircularProgressIndicator()
@@ -182,8 +191,8 @@ fun LoginScreen(
                 Button(
                     onClick = {
                         authViewModel.login(
-                            email = email.value,
-                            password = password.value
+                            email = email,
+                            password = password
                         )
                     },
                     modifier = Modifier
@@ -210,7 +219,9 @@ fun LoginScreen(
                     Text(
                         "New User? Register Now",
                         style = MaterialTheme.typography.bodySmall,
-                        color = PrimaryDark
+                        color = shett,
+                        fontWeight = FontWeight.Bold,
+                        fontStyle = FontStyle.Italic
                     )
                 }
             }

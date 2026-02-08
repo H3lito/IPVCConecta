@@ -1,6 +1,6 @@
 package com.example.ipvcconecta.ui.theme.navigation
 
-import AuthViewModel
+import com.example.ipvcconecta.ui.theme.AuthViewModel
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
@@ -16,18 +16,21 @@ import com.example.ipvcconecta.ui.theme.AdicionarLocalRoute
 import com.example.ipvcconecta.ui.theme.DetalheLocalRoute
 import com.example.ipvcconecta.ui.theme.ExplorarRoute
 import com.example.ipvcconecta.ui.theme.FavoritoRoute
+import com.example.ipvcconecta.ui.theme.GuiaSouNovoRoute
 import com.example.ipvcconecta.ui.theme.ListaLocaisRoute
 import com.example.ipvcconecta.ui.theme.LoginRoute
 import com.example.ipvcconecta.ui.theme.MapRoute
 import com.example.ipvcconecta.ui.theme.PerfilRoute
 import com.example.ipvcconecta.ui.theme.RegisterRouter
+import com.example.ipvcconecta.ui.theme.components.SplashScreen
 import com.example.ipvcconecta.ui.theme.components.createAcc.RegisterScreen
 import com.example.ipvcconecta.ui.theme.components.explorar.ExplorarScreen
 import com.example.ipvcconecta.ui.theme.components.favoritos.FavoritosScreen
 import com.example.ipvcconecta.ui.theme.components.favoritos.FavoritosViewModel
+import com.example.ipvcconecta.ui.theme.components.guia.GuiaSouNovoScreen
+import com.example.ipvcconecta.ui.theme.components.locais.AdicionarLocalScreen
 import com.example.ipvcconecta.ui.theme.components.locais.DetalheLocalScreen
 import com.example.ipvcconecta.ui.theme.components.locais.ListaLocaisScreen
-import com.example.ipvcconecta.ui.theme.components.locais.LocalDetalhe
 import com.example.ipvcconecta.ui.theme.components.login.LoginScreen
 import com.example.ipvcconecta.ui.theme.components.mapa.MapScreen
 import com.example.ipvcconecta.ui.theme.components.mapa.MapViewModel
@@ -50,9 +53,14 @@ fun NavHostContainer(
 
     NavHost(
         navController = navController,
-        startDestination = LoginRoute,
+        startDestination = "splash",
         modifier = Modifier.padding(padding),
         builder = {
+
+            composable(route= "splash"){
+                SplashScreen(navController = navController)
+            }
+
 
             // ---------- AUTH ----------
             composable<LoginRoute> {
@@ -60,6 +68,15 @@ fun NavHostContainer(
                     authViewModel = authViewModel,
                     onGoToRegister = {
                         navController.navigate(RegisterRouter)
+                    },
+                    onLoginSuccess = {
+                        // 👇 AQUI ESTÁ O SEGREDO PARA O BOTÃO VOLTAR
+                        navController.navigate(MapRoute()) {
+                            // Isto diz: "Remove tudo até ao login (inclusive) da pilha de história"
+                            popUpTo(LoginRoute) {
+                                inclusive = true
+                            }
+                        }
                     }
                 )
             }
@@ -84,9 +101,17 @@ fun NavHostContainer(
                     focusLat = args.lat,
                     focusLng = args.lng,
                     viewModel = mapViewModel, // <--- Passamos o mesmo ViewModel para partilhar dados
-                    onNavigateToAddLocation = {
-                        navController.navigate(AdicionarLocalRoute)
+                    onNavigateToAddLocation = { lat, lng ->
+                        // Recebe as coordenadas do botão FAB e navega
+                        navController.navigate(AdicionarLocalRoute(lat, lng))
                     }
+                )
+            }
+            composable<AdicionarLocalRoute> { //backStackEntry ->
+                //val args = backStackEntry.toRoute<AdicionarLocalRoute>()
+
+                AdicionarLocalScreen(
+                    onBackClick = { navController.popBackStack() }
                 )
             }
             composable<ExplorarRoute> {
@@ -115,8 +140,9 @@ fun NavHostContainer(
 
             // ⚠️ AQUI ESTAVA O PROBLEMA E AQUI ESTÁ A SOLUÇÃO ⚠️
             composable<DetalheLocalRoute> { backStackEntry ->
-                val nomeRota = backStackEntry.arguments?.getString("nome") ?: ""
-
+                //val nomeRota = backStackEntry.arguments?.getString("nome") ?: ""
+                val args = backStackEntry.toRoute<DetalheLocalRoute>()
+                val nomeRota = args.nome
                 // ANTES (ERRADO): Lia do ficheiro morto
                 // val localReal = LocaisData.carregarLocaisIniciais().find { it.nome == nomeRota }
 
@@ -162,11 +188,20 @@ fun NavHostContainer(
                             launchSingleTop = true
                         }
                     },
+                    onGuiaClick = {
+                        navController.navigate(GuiaSouNovoRoute)
+                    },
                     onLogoutClick = {
+                        authViewModel.signOut()
                         navController.navigate(LoginRoute) {
                             popUpTo(0) { inclusive = true }
                         }
                     }
+                )
+            }
+            composable<GuiaSouNovoRoute> {
+                GuiaSouNovoScreen(
+                    onBackClick = { navController.popBackStack() }
                 )
             }
         }

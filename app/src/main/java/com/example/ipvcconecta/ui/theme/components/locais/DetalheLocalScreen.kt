@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Place
@@ -29,10 +28,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.ipvcconecta.ui.theme.PrimaryDark
-import com.example.ipvcconecta.ui.theme.Surface
+import com.example.ipvcconecta.ui.theme.Primary
+import com.example.ipvcconecta.ui.theme.shett
 
 data class LocalDetalhe(
     val id: String = "",
@@ -70,7 +70,9 @@ fun DetalheLocalScreen(
         ) {
             Text(
                 text = local.nome,
-                style = MaterialTheme.typography.titleLarge
+                style = MaterialTheme.typography.titleLarge,
+                color = Primary,
+                fontWeight = FontWeight.Bold
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -81,13 +83,14 @@ fun DetalheLocalScreen(
 
             Text(
                 text = "Descrição",
-                style = MaterialTheme.typography.titleMedium
+                style = MaterialTheme.typography.titleMedium,
+                color = Primary
             )
 
             Text(
                 text = local.descricao,
                 style = MaterialTheme.typography.bodyMedium,
-                color = Color.Gray
+                color = Color.Black
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -115,15 +118,15 @@ fun DetalheHeader(
         modifier = Modifier
             .fillMaxWidth()
             .height(56.dp)
-            .background(Color.White)
+            .background(shett)
             .padding(horizontal = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         IconButton(onClick = onBackClick) {
             Icon(
-                imageVector = Icons.Default.ArrowBack, // Ou Icons.AutoMirrored.Filled.ArrowBack
+                imageVector = Icons.AutoMirrored.Filled.ArrowBack, // Ou Icons.AutoMirrored.Filled.ArrowBack
                 contentDescription = "Voltar",
-                tint = PrimaryDark
+                tint = Color.White
             )
         }
 
@@ -132,7 +135,9 @@ fun DetalheHeader(
         Text(
             text = "IPVCConecta",
             style = MaterialTheme.typography.titleMedium,
-            color = PrimaryDark
+            color =Color.White ,
+            fontWeight = FontWeight.Bold
+
         )
     }
 }
@@ -140,12 +145,14 @@ fun DetalheHeader(
 fun CategoriaChip(categoria: String) {
     Surface(
         shape = RoundedCornerShape(16.dp),
-        color = Color(0xFFE0E0E0)
+        color = shett
     ) {
         Text(
             text = categoria,
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-            style = MaterialTheme.typography.bodySmall
+            style = MaterialTheme.typography.bodySmall,
+            color = Color.White,
+            fontWeight = FontWeight.Bold
         )
     }
 }
@@ -158,7 +165,8 @@ fun InfoItem(
         Text(
             text = titulo,
             style = MaterialTheme.typography.labelMedium,
-            color = Color.Gray
+            color = Primary,
+            fontWeight = FontWeight.Bold
         )
         Text(
             text = valor,
@@ -182,7 +190,7 @@ fun AcoesLocal(
             modifier = Modifier.weight(1f),
             // Opcional: Mudar cor se for favorito
             colors = ButtonDefaults.buttonColors(
-                containerColor = if (isFavorito) Color(0xFFE91E63) else MaterialTheme.colorScheme.primary
+                containerColor = if (isFavorito) Color.Red else MaterialTheme.colorScheme.primary
             )
         ) {
             // TROCAR O ÍCONE AQUI
@@ -196,7 +204,11 @@ fun AcoesLocal(
 
         OutlinedButton(
             onClick = onVerMapaClick,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
+            colors = ButtonDefaults.outlinedButtonColors(
+                contentColor = shett // Ou usa 'AzulPetroleo' se preferires
+            ),
+
         ) {
             Icon(Icons.Default.Place, contentDescription = null)
             Spacer(modifier = Modifier.width(8.dp))

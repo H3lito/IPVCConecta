@@ -24,6 +24,8 @@ import androidx.compose.material.icons.filled.CloudUpload
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.School
+import androidx.compose.material3.AlertDialogDefaults.containerColor
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -39,16 +41,20 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
+import com.example.ipvcconecta.ui.theme.Primary
+import com.example.ipvcconecta.ui.theme.shett
 
 
 @Composable
 fun PerfilScreen(
     onFavoritosClick: () -> Unit = {},
     viewModel: PerfilViewModel = viewModel(),
+    onGuiaClick: () -> Unit = {},
     onLogoutClick: () -> Unit = {}
 ) {
     val nome by viewModel.nome.collectAsState()
@@ -94,10 +100,18 @@ fun PerfilScreen(
             Text(
                 text = email,
                 style = MaterialTheme.typography.bodyMedium,
-                color = Color.Gray
+                color = shett
             )
 
             Spacer(modifier = Modifier.height(32.dp))
+
+            PerfilOption(
+                text = "Sou Novo",
+                icon = Icons.Default.School,
+                onClick = onGuiaClick,
+
+            )
+
 
             PerfilOption(
                 text = "Favoritos",
@@ -156,7 +170,9 @@ fun PerfilHeader() {
     ) {
         Text(
             text = "Perfil",
-            style = MaterialTheme.typography.titleMedium
+            style = MaterialTheme.typography.titleLarge,
+            color= Primary,
+            fontWeight = FontWeight.Bold
         )
     }
 }
@@ -201,7 +217,11 @@ fun PerfilOption(
             .padding(horizontal = 24.dp, vertical = 8.dp)
             .clickable { onClick() },
         shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(2.dp)
+        elevation = CardDefaults.cardElevation(2.dp),
+                colors = CardDefaults.cardColors(
+                // Se for 'Perigo' (Sair) fica Branco, senão fica AZUL PETRÓLEO
+                containerColor =  shett
+                )
     ) {
         Row(
             modifier = Modifier.padding(16.dp),
@@ -210,7 +230,7 @@ fun PerfilOption(
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                tint = if (isDanger) Color.Red else MaterialTheme.colorScheme.primary
+                tint = if (isDanger) Color.Red else Color.White
             )
 
             Spacer(modifier = Modifier.width(16.dp))
@@ -218,7 +238,7 @@ fun PerfilOption(
             Text(
                 text = text,
                 style = MaterialTheme.typography.bodyLarge,
-                color = if (isDanger) Color.Red else Color.Black
+                color = if (isDanger) Color.Red else Color.White
             )
         }
     }
