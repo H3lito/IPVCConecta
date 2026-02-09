@@ -26,6 +26,7 @@
 | <img src="IPVCConecta/Login.jpeg" width="250"> | <img src="IPVCConecta/Register.jpeg" width="250"> |
 
 | **Map**  | **Informação**|
+|:---:|:---:|
 |<img src="IPVCConecta/Map.jpeg" width="250"> | <img src="IPVCConecta/Informacao.jpeg" width="250">|
 
 | **Detalhes do Local** | **Perfil de Utilizador** |
@@ -34,7 +35,7 @@
 
 
 | **Explorar Categorias** | **Detalhes Local**|
-|:---:|
+|:---:|:---:|
 | <img src="IPVCConecta/Explorar.jpeg" width="250"> |<img src="IPVCConecta/Detalhes.jpeg" width="250">|
 
 
@@ -69,6 +70,7 @@ Para executar o projeto:
 
 Desenvolvido por **Hélito Mendes** (Nº 32440)
 Licenciatura em Engenharia de Redes e Sistemas de Computadores - IPVC.
+
 
 
 
