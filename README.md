@@ -21,7 +21,7 @@
 
 ## 📱 Capturas de Ecrã
 
-| Login & Registo | Mapa & Navegação |
+| Login | Registo |
 |:---:|:---:|
 | <img src="IPVCConecta/Login.jpeg" width="250"> | <img src="IPVCConecta/Register.jpeg" width="250"> |<img src="IPVCConecta/Map.jpeg" width="250"> |
 | **Autenticação Segura** | **Google Maps Integrado** |
@@ -67,4 +67,5 @@ Para executar o projeto:
 
 Desenvolvido por **Hélito Mendes** (Nº 32440)
 Licenciatura em Engenharia de Redes e Sistemas de Computadores - IPVC.
+
 
