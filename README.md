@@ -21,17 +21,19 @@
 
 ## 📱 Capturas de Ecrã
 
-| Login | Registo |
+| **Login** | **Registo** |
 |:---:|:---:|
-| <img src="IPVCConecta/Login.jpeg" width="250"> | <img src="IPVCConecta/Register.jpeg" width="250"> |<img src="IPVCConecta/Map.jpeg" width="250"> |
-| **Autenticação Segura** | **Google Maps Integrado** |
+| <img src="IPVCConecta/Login.jpeg" width="250"> | <img src="IPVCConecta/Register.jpeg" width="250"> |
 
-| Detalhes do Local | Perfil de Utilizador |
+| **Map**  | **Informação**|
+|<img src="IPVCConecta/Map.jpeg" width="250"> | <img src="IPVCConecta/Informacao.jpeg" width="250">|
+
+| **Detalhes do Local** | **Perfil de Utilizador** |
 |:---:|:---:|
 | <img src="IPVCConecta/Detalhes_marcador.jpeg" width="250"> |<img src="IPVCConecta/perfil.jpeg" width="250">|
 
 
-| Explorar Categorias |
+| **Explorar Categorias** | **Detalhes Local**|
 |:---:|
 | <img src="IPVCConecta/Explorar.jpeg" width="250"> |<img src="IPVCConecta/Detalhes.jpeg" width="250">|
 
@@ -67,5 +69,6 @@ Para executar o projeto:
 
 Desenvolvido por **Hélito Mendes** (Nº 32440)
 Licenciatura em Engenharia de Redes e Sistemas de Computadores - IPVC.
+
 
 
