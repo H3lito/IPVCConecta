@@ -4,6 +4,7 @@
 ![Compose](https://img.shields.io/badge/Jetpack%20Compose-M3-green?style=for-the-badge&logo=android)
 ![Firebase](https://img.shields.io/badge/Firebase-Auth%20%7C%20Firestore-orange?style=for-the-badge&logo=firebase)
 ![Status](https://img.shields.io/badge/Status-Completed-success?style=for-the-badge)
+[![Download APK](https://img.shields.io/badge/Download-APK%20v1.0-blue?style=for-the-badge&logo=android)](https://github.com/H3lito/IPVCConecta/releases/latest)
 
 **IPVCConecta** é uma aplicação nativa Android desenvolvida para auxiliar a integração e mobilidade de novos alunos no Instituto Politécnico de Viana do Castelo. A app funciona como um guia de bolso interativo, permitindo localizar escolas, serviços e pontos de interesse.
 
@@ -70,6 +71,7 @@ Para executar o projeto:
 
 Desenvolvido por **Hélito Mendes** (Nº 32440)
 Licenciatura em Engenharia de Redes e Sistemas de Computadores - IPVC.
+
 
 
 
