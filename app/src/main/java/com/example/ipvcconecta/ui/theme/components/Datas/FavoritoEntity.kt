@@ -5,7 +5,7 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "favoritos", primaryKeys = ["nome", "userId"])
 data class FavoritoEntity(
-    val userId: String, // <--- NOVO CAMPO: Quem guardou este favorito
+    val userId: String,
     val nome: String,
     val categoria: String,
     val descricao: String,

@@ -32,31 +32,31 @@ import com.example.ipvcconecta.ui.theme.LoginRoute
 import com.example.ipvcconecta.ui.theme.shett
 import kotlinx.coroutines.delay
 
+// Ecrã de Abertura com animação
 @Composable
 fun SplashScreen(navController: NavController) {
 
-    // Variável para a animação de escala (Zoom in)
+    // Gestão de estado de animação
     val scale = remember { Animatable(0f) }
 
-    // Efeito que corre assim que o ecrã abre
+    // O LaunchedEffect permite executar operações assíncronas
     LaunchedEffect(key1 = true) {
-        // 1. Anima o logo a crescer
+        // Animação de Interpolação
         scale.animateTo(
-            targetValue = 1f, // Tamanho final
+            targetValue = 1f, // Cresce até o tamanho original
             animationSpec = tween(
                 durationMillis = 1000,
                 easing = { OvershootInterpolator(2f).getInterpolation(it) }
             )
         )
 
-        // 2. Espera um pouco (2 segundos no total)
+        // 2. Espera um pouco e não bloqueia a Main Thread.
         delay(1500L)
 
-        // 3. Navega para o próximo ecrã (Login ou Mapa)
-        // "login" é o nome da tua rota inicial. Se já estiver logado, podes mudar a lógica depois.
+        // 3. Navegação e Limpeza da Backstack.
         navController.navigate(LoginRoute) {
-            // Isto garante que se o utilizador clicar "Voltar", a app fecha em vez de voltar ao Splash
-            popUpTo("splash") { inclusive = true }
+            // Remove o ecrã splash da pilha
+        popUpTo("splash") { inclusive = true }
         }
     }
 
@@ -68,8 +68,6 @@ fun SplashScreen(navController: NavController) {
             .background(shett) // Fundo Azul Escuro
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-
-            // SE TIVERES UM LOGO (Imagem PNG/JPG na pasta drawable):
 
             Image(
                 painter = painterResource(id = R.drawable.ipvcconecta),

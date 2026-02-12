@@ -25,35 +25,29 @@ import com.example.ipvcconecta.ui.theme.RegisterRouter
 import com.example.ipvcconecta.ui.theme.navigation.BottomNavigationBar
 import com.example.ipvcconecta.ui.theme.navigation.NavHostContainer
 
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            //val navController = rememberNavController()
 
             IPVCConectaTheme( darkTheme = false) {
                 Scaffolding()
 
-                /*Scaffold(
-                    bottomBar = {
-                        BottomNavigationBar(navController = navController)
-                    }
-                )*/ /*{ padding ->
-                    NavHostContainer(
-                        navController = navController,
-                        padding = padding
-                    )
-                }*/
             }
         }
     }
 }
 
+
+// Gestão de Estado e Navegação Root
+
 @Composable
 fun Scaffolding() {
     val navController = rememberNavController()
     val authViewModel: AuthViewModel = viewModel()
+    // Estado da autenticação como State
     val authState by authViewModel.authState.observeAsState()
 
     // 1. Obter a entrada atual da pilha de navegação
@@ -62,20 +56,26 @@ fun Scaffolding() {
 
     // 2. Lógica CORRETA para Type-Safe Navigation
     // A barra aparece APENAS se estivermos num destes ecrãs principais:
+    // O hasroute é utilizado em vez de Strings para previnir erros de digitação em tempo de compilação.
     val showBottomBar = currentDestination?.hasRoute<MapRoute>() == true ||
             currentDestination?.hasRoute<ExplorarRoute>() == true ||
             currentDestination?.hasRoute<FavoritoRoute>() == true ||
             currentDestination?.hasRoute<PerfilRoute>() == true
 
+    //Side-Effects de navegação. É utilizado o LaunchEffect para reagir a mudanças do authState
+
     LaunchedEffect(authState) {
         if (authState is AuthState.Authenticated) {
             navController.navigate(MapRoute()) {
-                popUpTo(LoginRoute) { inclusive = true }    // Usa o objeto da rota, não string
-                popUpTo(RegisterRouter) { inclusive = true } // Usa o objeto da rota
+               // Ao entrar na app, limpar os ecrãs de login e registo da backstack
+                // Isso impede que o utilizador volta á sessão de login já estando autenticado
+                popUpTo(LoginRoute) { inclusive = true }
+                popUpTo(RegisterRouter) { inclusive = true }
             }
         }
     }
 
+    //Estrutura Base da UI
     Scaffold(
         bottomBar = {
             if (showBottomBar) {

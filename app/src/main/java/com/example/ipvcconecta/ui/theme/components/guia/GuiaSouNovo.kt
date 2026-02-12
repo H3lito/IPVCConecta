@@ -59,7 +59,7 @@ data class GuiaItem(
 fun GuiaSouNovoScreen(
     onBackClick: () -> Unit
 ) {
-    // Lista de Perguntas (Podes adicionar mais aqui)
+    // Lista de Perguntas
     val listaPerguntas = listOf(
         GuiaItem(
             "Como chegar à ESTG - IPVC?",
@@ -149,7 +149,7 @@ fun GuiaSouNovoScreen(
     }
 }
 
-// --- O COMPONENTE MÁGICO (ACCORDION) ---
+
 @Composable
 fun ExpandableCard(
     title: String,
@@ -163,7 +163,7 @@ fun ExpandableCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .animateContentSize( // Animação suave ao abrir/fechar
+            .animateContentSize( // Animação ao abrir/fechar
                 animationSpec = tween(
                     durationMillis = 300,
                     easing = LinearOutSlowInEasing
@@ -185,7 +185,7 @@ fun ExpandableCard(
                 Icon(
                     imageVector = Icons.Default.School,
                     contentDescription = null,
-                    tint = Color.White, // Ícone preto como na imagem
+                    tint = Color.White,
                     modifier = Modifier.size(24.dp)
                 )
 
@@ -195,7 +195,7 @@ fun ExpandableCard(
                     text = title,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium,
-                    color = Color.White, // Texto preto como na imagem
+                    color = Color.White,
                     modifier = Modifier.weight(1f)
                 )
 
@@ -203,22 +203,21 @@ fun ExpandableCard(
                     imageVector = Icons.Default.ArrowDropDown,
                     contentDescription = "Expandir",
                     modifier = Modifier
-                        .rotate(rotationState), // Roda a seta
+                        .rotate(rotationState),
                     tint = Color.Black
                 )
             }
 
-            // Conteúdo escondido
+            // Informação escondida
             if (expanded) {
                 Spacer(modifier = Modifier.height(12.dp))
-                // Linha divisória fina (opcional)
                 HorizontalDivider(color = Color.White.copy(alpha = 0.3f))
                 Spacer(modifier = Modifier.height(12.dp))
 
                 Text(
                     text = description,
                     fontSize = 14.sp,
-                    color = Color.White, // Texto branco para ler no fundo azul
+                    color = Color.White,
                     textAlign = TextAlign.Justify,
                     lineHeight = 20.sp
                 )

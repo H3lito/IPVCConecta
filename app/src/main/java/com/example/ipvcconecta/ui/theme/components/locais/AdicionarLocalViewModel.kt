@@ -39,9 +39,8 @@ class AddLocalViewModel : ViewModel() {
 
         )
 
-        // ⚠️ MUDANÇA AQUI:
-        // Em vez de "locais", enviamos para "sugestoes".
-        // Assim, o mapa (que lê "locais") IGNORA estes dados até serem aprovados.
+        // Em vez de "locais", envia para "Sugestoes".
+        // Assim, o mapa IGNORA estes dados até serem aprovados.
         db.collection("sugestoes")
             .document(nome)
             .set(novoLocal)

@@ -5,7 +5,6 @@ import com.example.ipvcconecta.ui.theme.components.Datas.AppDatabase
 import com.example.ipvcconecta.ui.theme.components.Datas.LocalEntity
 import com.example.ipvcconecta.ui.theme.components.locais.LocalDetalhe
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.toObject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.tasks.await
@@ -23,7 +22,7 @@ class LocaisRepository(application: Application) {
         try {
             val snapshot = dbRemoto.get().await()
 
-            // Mapeamento Manual (Mais seguro que o toObject)
+            // Mapeamento Manual
             val locaisRemotos = snapshot.documents.map { doc ->
                 LocalEntity(
                     id = doc.id,
@@ -41,7 +40,7 @@ class LocaisRepository(application: Application) {
                 dbLocal.insertAllLocais(locaisRemotos)
             }
         } catch (e: Exception) {
-            e.printStackTrace() // Vê o Logcat se isto falhar
+            e.printStackTrace()
         }
     }
 }

@@ -43,17 +43,18 @@ fun NavHostContainer(
     padding: PaddingValues,
     authViewModel: AuthViewModel
 ) {
-    // 1. Instanciar os ViewModels partilhados
+    // 1. Instanciar os ViewModels no nível do NavHost
     val favoritosViewModel: FavoritosViewModel = viewModel()
-    val mapViewModel: MapViewModel = viewModel() // <--- NOVO: Precisamos disto para aceder aos dados reais
+    val mapViewModel: MapViewModel = viewModel()
 
-    // 2. Ler as listas vivas (Base de Dados / Firebase)
+    // 2. Observação Reactiva de Dados (StateFlow)
+    // O collectAsState() para converter os fluxos assincronos
     val listaFavoritos by favoritosViewModel.favoritos.collectAsState()
-    val todosLocais by mapViewModel.locais.collectAsState() // <--- A lista completa e atualizada
+    val todosLocais by mapViewModel.locais.collectAsState()
 
     NavHost(
         navController = navController,
-        startDestination = "splash",
+        startDestination = "splash", //ponto de entrada inicial
         modifier = Modifier.padding(padding),
         builder = {
 
@@ -62,7 +63,7 @@ fun NavHostContainer(
             }
 
 
-            // ---------- AUTH ----------
+            // Fluxo de Autenticação
             composable<LoginRoute> {
                 LoginScreen(
                     authViewModel = authViewModel,
@@ -70,9 +71,8 @@ fun NavHostContainer(
                         navController.navigate(RegisterRouter)
                     },
                     onLoginSuccess = {
-                        // 👇 AQUI ESTÁ O SEGREDO PARA O BOTÃO VOLTAR
                         navController.navigate(MapRoute()) {
-                            // Isto diz: "Remove tudo até ao login (inclusive) da pilha de história"
+                            // O popUpTo garante que o ecrã é destruído da memória, assim impedindo que o utlizador autenticado volte de volta ao ecrã de login
                             popUpTo(LoginRoute) {
                                 inclusive = true
                             }
@@ -93,23 +93,20 @@ fun NavHostContainer(
                 )
             }
 
-            // ---------- MAIN ----------
+            // Fluxo Principal
             composable<MapRoute> { backStackEntry ->
                 val args = backStackEntry.toRoute<MapRoute>()
 
                 MapScreen(
                     focusLat = args.lat,
                     focusLng = args.lng,
-                    viewModel = mapViewModel, // <--- Passamos o mesmo ViewModel para partilhar dados
+                    viewModel = mapViewModel,
                     onNavigateToAddLocation = { lat, lng ->
-                        // Recebe as coordenadas do botão FAB e navega
                         navController.navigate(AdicionarLocalRoute(lat, lng))
                     }
                 )
             }
-            composable<AdicionarLocalRoute> { //backStackEntry ->
-                //val args = backStackEntry.toRoute<AdicionarLocalRoute>()
-
+            composable<AdicionarLocalRoute> {
                 AdicionarLocalScreen(
                     onBackClick = { navController.popBackStack() }
                 )
@@ -123,12 +120,10 @@ fun NavHostContainer(
             composable<ListaLocaisRoute> { backStackEntry ->
                 val args = backStackEntry.toRoute<ListaLocaisRoute>()
 
-                // AQUI ESTÁ A MAGIA:
-                // Passamos 'todosLocais' (que vem do ViewModel lá de cima)
-                // O ecrã a seguir vai filtrar sozinho.
+                // Injeção dos dados reativos.
                 ListaLocaisScreen(
                     categoria = args.categoria,
-                    locais = todosLocais, // <--- Passamos a lista do Room/Firebase
+                    locais = todosLocais,
                     onLocalClick = { local ->
                         navController.navigate(DetalheLocalRoute(local.nome))
                     },
@@ -138,15 +133,10 @@ fun NavHostContainer(
                 )
             }
 
-            // ⚠️ AQUI ESTAVA O PROBLEMA E AQUI ESTÁ A SOLUÇÃO ⚠️
             composable<DetalheLocalRoute> { backStackEntry ->
-                //val nomeRota = backStackEntry.arguments?.getString("nome") ?: ""
                 val args = backStackEntry.toRoute<DetalheLocalRoute>()
                 val nomeRota = args.nome
-                // ANTES (ERRADO): Lia do ficheiro morto
-                // val localReal = LocaisData.carregarLocaisIniciais().find { it.nome == nomeRota }
-
-                // AGORA (CORRETO): Lê da lista viva do ViewModel
+                // Resolução do Single Source Of Truth. Se o local for  atualizado no Firebase/Room, este ecrã reflete as mmudanças instantaneamente
                 val localReal = todosLocais.find { it.nome == nomeRota }
 
                 if (localReal != null) {
@@ -180,7 +170,7 @@ fun NavHostContainer(
             }
 
 
-            // ---------- PERFIL ----------
+            // Fluxo Perfil e definições
             composable<PerfilRoute> {
                 PerfilScreen(
                     onFavoritosClick = {
@@ -194,6 +184,7 @@ fun NavHostContainer(
                     onLogoutClick = {
                         authViewModel.signOut()
                         navController.navigate(LoginRoute) {
+                            // Limpesa de segurança. Garante que não sobram ecrãs privados na memória após o logout
                             popUpTo(0) { inclusive = true }
                         }
                     }
