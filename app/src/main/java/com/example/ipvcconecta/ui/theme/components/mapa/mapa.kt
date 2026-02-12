@@ -66,13 +66,12 @@ fun MapScreen(
     focusLat: Double? = null,
     focusLng: Double? = null,
     viewModel: MapViewModel = viewModel(),
-    // ⚠️ ALTERADO: Agora aceita (Latitude, Longitude)
     onNavigateToAddLocation: (Double, Double) -> Unit = { _, _ -> }
 ) {
     val context = LocalContext.current
     val locais by viewModel.locais.collectAsState()
 
-    // Estados do mapa
+    // Estados do controlo da camara e pesquisa
     val cameraLocation by viewModel.cameraLocation.collectAsState()
     val searchResultLocation by viewModel.searchResultLocation.collectAsState()
     val searchResultTitle by viewModel.searchResultTitle.collectAsState()
@@ -92,6 +91,7 @@ fun MapScreen(
         if (isGranted) viewModel.getDeviceLocation()
     }
 
+    //Solicita a localização ou permissão
     LaunchedEffect(Unit) {
         if (!hasLocationPermission) {
             permissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
@@ -99,13 +99,13 @@ fun MapScreen(
             viewModel.getDeviceLocation()
         }
     }
-
-    val defaultLocation = LatLng(41.6932, -8.8329)
+// Controlo Imperativo da Camera
+    val defaultLocation = LatLng(41.6932, -8.8329) // Viana do Castelo
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(defaultLocation, 13f)
     }
 
-    // Lógica da Câmara
+    // Lógica da Câmara- Centralizar no ultilizador ao encontrar a posição
     LaunchedEffect(cameraLocation) {
         if (focusLat == null && focusLng == null) {
             cameraLocation?.let {
@@ -113,7 +113,7 @@ fun MapScreen(
             }
         }
     }
-
+//Animação quando vê o ecrã detalhe
     LaunchedEffect(focusLat, focusLng) {
         if (focusLat != null && focusLng != null) {
             val posicaoFoco = LatLng(focusLat, focusLng)
@@ -123,7 +123,8 @@ fun MapScreen(
             )
         }
     }
-
+// Estilização Json do Mapa
+    // Remover os pontos de interesse irrelevantes da google
     val mapStyleOptions = remember {
         MapStyleOptions(
             "[" +
@@ -143,7 +144,7 @@ fun MapScreen(
                     viewModel.searchLocation(query)
                 }
             )
-
+            // Componentes do google maps
             GoogleMap(
                 modifier = Modifier.weight(1f),
                 cameraPositionState = cameraPositionState,
@@ -156,7 +157,7 @@ fun MapScreen(
                     mapToolbarEnabled = false
                 )
             ) {
-                // Marcadores dos Locais
+                // Marcadores dos Locais consoante a base de dados
                 locais.forEach { local ->
                     Marker(
                         state = MarkerState(position = LatLng(local.latitude, local.longitude)),
@@ -165,7 +166,7 @@ fun MapScreen(
                             MapUtils.getMarkerIcon(local.categoria)
                         ),
                         onClick = {
-                            selectedLocation = local
+                            selectedLocation = local // Abre o BottomSheet
                             false
                         }
                     )
@@ -185,14 +186,14 @@ fun MapScreen(
         }
 
 
-        // ⚠️ O BOTÃO FAB AGORA FUNCIONA
+// Botão flutuante para adicionar Local
         AddLocationFAB(
             modifier = Modifier.align(Alignment.BottomEnd),
             onClick = {
-                // 1. Capturar o centro do ecrã
+
                 val centroMapa = cameraPositionState.position.target
 
-                // 2. Navegar enviando as coordenadas
+
                 onNavigateToAddLocation(centroMapa.latitude, centroMapa.longitude)
             }
         )
@@ -206,7 +207,6 @@ fun MapScreen(
 
                 },
                 sheetState = sheetState,
-                //containerColor = MaterialTheme.colorScheme.surface // Corrigido o erro de compilação 'shett'
                 containerColor = shett,
                 contentColor = Color.White
 

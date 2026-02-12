@@ -91,7 +91,7 @@ fun AdicionarLocalScreen(
                 .padding(padding)
                 .background(Color.White)
                 .padding(24.dp)
-                .verticalScroll(rememberScrollState()), // Permite scroll se o teclado tapar
+                .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
@@ -106,7 +106,6 @@ fun AdicionarLocalScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // 2. CAMPOS (Limpos, sem coordenadas)
             CustomTextField(
                 value = nome,
                 onValueChange = { nome = it },
@@ -147,12 +146,12 @@ fun AdicionarLocalScreen(
 
             Spacer(modifier = Modifier.height(40.dp))
 
-            // 3. BOTÃO E FEEDBACK
+
             if (isLoading) {
                 CircularProgressIndicator(color = Primary)
             } else {
                 Button(
-                    // Enviamos as coordenadas 'escondidas' aqui
+
                     onClick = { viewModel.submeterLocal(nome, categoria, descricao, morada, horario) },
                     colors = ButtonDefaults.buttonColors(containerColor = shett),
                     shape = RoundedCornerShape(24.dp),

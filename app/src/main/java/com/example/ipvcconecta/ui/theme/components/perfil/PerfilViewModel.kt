@@ -11,10 +11,11 @@ import kotlinx.coroutines.flow.asStateFlow
 
 class PerfilViewModel : ViewModel() {
 
+    // Serviços Cloud
     private val auth = FirebaseAuth.getInstance()
     private val storage = FirebaseStorage.getInstance() // <--- Acesso ao Storage
 
-    // Estados da UI
+    // Estados da UI(StateFlow)
     private val _nome = MutableStateFlow("Utilizador")
     private val _email = MutableStateFlow("email@ipvc.pt")
     private val _fotoUri = MutableStateFlow<Uri?>(null)
@@ -51,10 +52,9 @@ class PerfilViewModel : ViewModel() {
         // 2. Fazer o Upload
         storageRef.putFile(uri)
             .addOnSuccessListener {
-                // 3. Upload feito! Agora pedimos o Link de Download (URL público)
                 storageRef.downloadUrl.addOnSuccessListener { downloadUri ->
 
-                    // 4. Atualizar o Perfil do Auth com esse novo Link
+                    // 4. Atualizar o Perfil do Auth com a foto
                     val profileUpdates = UserProfileChangeRequest.Builder()
                         .setPhotoUri(downloadUri)
                         .build()
@@ -62,7 +62,7 @@ class PerfilViewModel : ViewModel() {
                     user.updateProfile(profileUpdates)
                         .addOnCompleteListener { task ->
                             if (task.isSuccessful) {
-                                // Tudo correu bem! Atualizamos a UI.
+                                // Tudo correu bem! Atualizar a UI.
                                 _fotoUri.value = downloadUri
                                 _isLoading.value = false
                             }
@@ -70,7 +70,7 @@ class PerfilViewModel : ViewModel() {
                 }
             }
             .addOnFailureListener {
-                // Se falhar o upload
+                // Se falhar a rede durante o upload
                 _isLoading.value = false
                 it.printStackTrace()
             }

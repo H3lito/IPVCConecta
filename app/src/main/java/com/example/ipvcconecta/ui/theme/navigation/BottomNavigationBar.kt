@@ -12,14 +12,18 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.ipvcconecta.ui.theme.shett
 
+// Barra de navegação Inferior
 @Composable
 fun BottomNavigationBar(
     navController: NavController
 ) {
+    // Obter os dados
     val items = getBottomNavItems()
+    // Observar o estado de navegação
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
+    //Interface Declarativa
     NavigationBar(
         containerColor = Color.White
     ) {
@@ -29,6 +33,8 @@ fun BottomNavigationBar(
             NavigationBarItem(
                 selected = selected,
                 onClick = {
+                    // Gestão de memória e Pilha
+                    // Reaproveitamento da instancia
                     navController.navigate(item.route) {
                         launchSingleTop = true
 

@@ -18,10 +18,10 @@ import kotlin.collections.emptyList
 
 class MapViewModel(application: Application) : AndroidViewModel(application) {
 
-    // 1. Ligar ao Repositório
+    // Ligar ao Repositório
     private val repository = LocaisRepository(application)
 
-    // --- ESTADOS DO MAPA ---
+    // ESTADOS DO MAPA
     private val _cameraLocation = MutableStateFlow<LatLng?>(null)
     val cameraLocation: StateFlow<LatLng?> = _cameraLocation
 
@@ -31,7 +31,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     private val _searchResultTitle = MutableStateFlow("")
     val searchResultTitle = _searchResultTitle.asStateFlow()
 
-    // --- 2. DADOS INTELIGENTES ---
+    // Conversão de flow para stateflow
     // O 'stateIn' converte o fluxo da Base de Dados num Estado sempre atualizado
     val locais: StateFlow<List<LocalDetalhe>> = repository.locais
         .stateIn(
@@ -43,13 +43,14 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     private val fusedLocationClient = LocationServices.getFusedLocationProviderClient(application)
 
     init {
-        // 3. Ao abrir o mapa, tenta sincronizar (Fire-and-forget)
+        // Ao abrir o mapa, tenta sincronizar (Fire-and-forget)
         atualizarDados()
 
         // Pede localização GPS
         getDeviceLocation()
     }
 
+    // Repositório decide se vai á internet ou não( lógica do offline-first)
     private fun atualizarDados() {
         viewModelScope.launch(Dispatchers.IO) {
             repository.syncLocais()
@@ -89,6 +90,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
                         localEncontrado.latitude,
                         localEncontrado.longitude
                     )
+                    // Atualiza o estado e desloca para onde está o marcador
                     _cameraLocation.value = newLatLng
                     _searchResultLocation.value = newLatLng
                     _searchResultTitle.value = localEncontrado.nome

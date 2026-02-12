@@ -29,7 +29,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.ipvcconecta.ui.theme.Primary
 import com.example.ipvcconecta.ui.theme.shett
@@ -48,7 +47,7 @@ data class LocalDetalhe(
 fun DetalheLocalScreen(
     local: LocalDetalhe,
     isFavorito: Boolean = false,
-    onBackClick: () -> Unit = {}, // <--- Parâmetro para voltar
+    onBackClick: () -> Unit = {},
     onFavoritoClick: () -> Unit = {},
     onVerMapaClick: () -> Unit = {}
 ) {
@@ -57,7 +56,7 @@ fun DetalheLocalScreen(
             .fillMaxSize()
             .background(Color.White)
     ) {
-        // --- ADICIONAR ESTA CHAMADA AQUI ---
+
         DetalheHeader(
             onBackClick = onBackClick
         )
@@ -109,7 +108,7 @@ fun DetalheLocalScreen(
     }
 }
 
-// Simplifiquei o Header para receber apenas o que precisa
+
 @Composable
 fun DetalheHeader(
     onBackClick: () -> Unit
@@ -124,7 +123,7 @@ fun DetalheHeader(
     ) {
         IconButton(onClick = onBackClick) {
             Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowBack, // Ou Icons.AutoMirrored.Filled.ArrowBack
+                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                 contentDescription = "Voltar",
                 tint = Color.White
             )
@@ -174,7 +173,6 @@ fun InfoItem(
         )
     }
 }
-// Atualizar também a função AcoesLocal para receber o booleano e trocar o ícone
 @Composable
 fun AcoesLocal(
     isFavorito: Boolean,
@@ -188,12 +186,10 @@ fun AcoesLocal(
         Button(
             onClick = onFavoritoClick,
             modifier = Modifier.weight(1f),
-            // Opcional: Mudar cor se for favorito
             colors = ButtonDefaults.buttonColors(
                 containerColor = if (isFavorito) Color.Red else MaterialTheme.colorScheme.primary
             )
         ) {
-            // TROCAR O ÍCONE AQUI
             Icon(
                 imageVector = if (isFavorito) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                 contentDescription = null
@@ -206,7 +202,7 @@ fun AcoesLocal(
             onClick = onVerMapaClick,
             modifier = Modifier.weight(1f),
             colors = ButtonDefaults.outlinedButtonColors(
-                contentColor = shett // Ou usa 'AzulPetroleo' se preferires
+                contentColor = shett
             ),
 
         ) {
@@ -214,22 +210,5 @@ fun AcoesLocal(
             Spacer(modifier = Modifier.width(8.dp))
             Text("Ver no mapa")
         }
-    }
-}
-@Preview(showBackground = true)
-@Composable
-fun DetalheLocalPreview() {
-    MaterialTheme {
-        DetalheLocalScreen(
-            local = LocalDetalhe(
-                nome = "Cantina IPVC",
-                categoria = "Alimentação",
-                descricao = "Espaço de refeições acessível para estudantes.",
-                morada = "Av. do Atlântico, Viana do Castelo",
-                horario = "Seg–Sex: 12h–14h",
-                latitude = 41.6932,
-                longitude =-8.8329
-            )
-        )
     }
 }
