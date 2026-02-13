@@ -10,13 +10,16 @@ import com.example.ipvcconecta.ui.theme.FavoritoRoute
 import com.example.ipvcconecta.ui.theme.MapRoute
 import com.example.ipvcconecta.ui.theme.PerfilRoute
 
+// Configuração da Bottom Navigation Bar
 
+// Data Class que representa um "molde" de um item da barra de navegação
 data class BottomNavItem(
     val title: String,
     val route: Any,
     val icon: ImageVector
 )
 
+// Devolve a configuração da barra de navegação
 fun getBottomNavItems(): List<BottomNavItem> {
     return listOf(
         BottomNavItem("Mapa", MapRoute(), Icons.Filled.Map),

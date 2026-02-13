@@ -39,11 +39,11 @@ import com.example.ipvcconecta.ui.theme.shett
 @Composable
 fun ListaLocaisScreen(
     categoria: String,
-    locais: List<LocalDetalhe>, // <--- NOVO: Recebe a lista viva (do Room/Firebase)
+    locais: List<LocalDetalhe>, // Recebe a lista  (do Room/Firebase)
     onLocalClick: (LocalDetalhe) -> Unit,
     onBackClick: () -> Unit
 ) {
-    // 1. Filtramos a lista viva pela categoria escolhida
+    //Filtrar a lista pela categoria escolhida
     val locaisFiltrados = locais.filter { it.categoria == categoria }
 
     Scaffold(
@@ -63,7 +63,6 @@ fun ListaLocaisScreen(
             )
         }
     ) { paddingValues ->
-        // 2. Se a lista estiver vazia (ex: acabaste de criar a categoria e ainda não tem locais)
         if (locaisFiltrados.isEmpty()) {
             Box(
                 modifier = Modifier
@@ -91,7 +90,6 @@ fun ListaLocaisScreen(
     }
 }
 
-// O LocalCard mantém-se igual (podes mantê-lo no fundo do ficheiro como tinhas)
 @Composable
 fun LocalCard(local: LocalDetalhe, onClick: () -> Unit) {
     Card(

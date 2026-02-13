@@ -48,7 +48,7 @@ fun FavoritosScreen(
         if (favoritos.isEmpty()) {
             FavoritosEmptyState()
         } else {
-            // Agora os tipos batem certo (List<LocalDetalhe>)
+
             FavoritosList(
                 favoritos = favoritos,
                 onLocalClick = onLocalClick
@@ -91,8 +91,8 @@ fun FavoritosEmptyState() {
 
 @Composable
 fun FavoritosList(
-    favoritos: List<LocalDetalhe>, // <--- MUDADO DE LocalFavorito PARA LocalDetalhe
-    onLocalClick: (LocalDetalhe) -> Unit // <--- MUDADO AQUI TAMBÉM
+    favoritos: List<LocalDetalhe>,
+    onLocalClick: (LocalDetalhe) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier
@@ -100,7 +100,6 @@ fun FavoritosList(
             .padding(horizontal = 16.dp)
     ) {
         items(favoritos) { local ->
-            // O FavoritoCard também já deve estar à espera de LocalDetalhe
             FavoritoCard(local = local) {
                 onLocalClick(local)
             }

@@ -26,7 +26,7 @@ import com.example.ipvcconecta.ui.theme.shett
 
 @Composable
 fun FavoritoCard(
-    local: LocalDetalhe, // <--- MUDAR AQUI O TIPO
+    local: LocalDetalhe,
     onClick: () -> Unit
 ) {
     Card(

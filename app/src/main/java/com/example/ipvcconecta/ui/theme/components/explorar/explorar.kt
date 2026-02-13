@@ -30,7 +30,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.ipvcconecta.ui.theme.Primary
@@ -43,7 +42,7 @@ fun ExplorarScreen(
     val categorias by viewModel.categorias.collectAsState()
     Box(modifier = Modifier.fillMaxSize().background(Color.White)) {
         Column(modifier = Modifier.fillMaxSize()) {
-            com.example.ipvcconecta.ui.theme.components.explorar.MapHeader()
+            MapHeader()
 
             ExplorarContent(
                 categorias = categorias,
@@ -152,13 +151,3 @@ fun ExplorarItem(
     }
 }
 
-
-
-
-@Preview(showBackground = true)
-@Composable
-fun ExplorarScreenPreview() {
-    MaterialTheme {
-        ExplorarScreen()
-    }
-}

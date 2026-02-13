@@ -20,12 +20,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
-import androidx.compose.material.icons.filled.CloudUpload
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.School
-import androidx.compose.material3.AlertDialogDefaults.containerColor
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -73,10 +71,9 @@ fun PerfilScreen(
         }
     )
 
-    // 2. USAR UM BOX COMO RAIZ (Para empilhar o loading por cima)
     Box(modifier = Modifier.fillMaxSize()) {
 
-        // --- CONTEÚDO DO ECRÃ (Fica por baixo) ---
+        // Camada Inferior
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -140,9 +137,9 @@ fun PerfilScreen(
             )
         }
 
-        // --- INDICADOR DE CARREGAMENTO (Fica por cima) ---
+        // --- INDICADOR DE CARREGAMENTO
         if (isLoading) {
-            // Fundo semi-transparente para bloquear cliques enquanto carrega
+            // Fundo semi-transparente para feedback Visual do que carrega
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -177,6 +174,7 @@ fun PerfilHeader() {
     }
 }
 
+// Carregamento de Imagem(Coil)
 @Composable
 fun PerfilAvatar(fotoUri: Uri?) {
     Box(

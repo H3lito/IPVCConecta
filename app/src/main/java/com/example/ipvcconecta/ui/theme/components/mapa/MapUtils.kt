@@ -2,6 +2,7 @@ package com.example.ipvcconecta.ui.theme.components.mapa
 
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 
+//Utilitários de visualização do mapa
 object MapUtils {
 
     fun getMarkerIcon(categoria: String): Float {
@@ -11,7 +12,6 @@ object MapUtils {
             "Alojamento", "Residência" -> BitmapDescriptorFactory.HUE_VIOLET       // Roxo
             "Transportes" -> BitmapDescriptorFactory.HUE_GREEN                     // Verde
             "Saúde" -> BitmapDescriptorFactory.HUE_ROSE                            // Rosa
-            "Lazer", "Desporto" -> BitmapDescriptorFactory.HUE_YELLOW              // Amarelo
             else -> BitmapDescriptorFactory.HUE_RED                                // Vermelho (Padrão)
         }
     }
