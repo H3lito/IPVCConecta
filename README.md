@@ -66,11 +66,17 @@ Para executar o projeto:
 4.  Compile no Android Studio.
 
 ---
+## Demonstração
+
+https://github.com/user-attachments/assets/8ceaf65c-720b-43e3-8a76-f63787b37299
+
+---
 
 ### 👨‍💻 Autor
 
 Desenvolvido por **Hélito Mendes** (Nº 32440)
 Licenciatura em Engenharia de Redes e Sistemas de Computadores - IPVC.
+
 
 
 
